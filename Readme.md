@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
-* Студент: [Андрей Отин](https://up.htmlacademy.ru/ecmascript/19/user/1248355).
-* Наставник: `Неизвестно`.
+* Студент: [Kirill Savchenko](https://up.htmlacademy.ru/ecmascript/19/user/1248355).
+* Наставник: `Alina Vishniakova`.
 
 ---
 
