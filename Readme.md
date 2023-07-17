@@ -1,6 +1,6 @@
 # Проект «Большое путешествие»
 
-* Студент: [Kirill Savchenko](https://up.htmlacademy.ru/ecmascript/19/user/1248355).
+* Студент: 'Kirill Savchenko'.
 * Наставник: `Alina Vishniakova`.
 
 ---
