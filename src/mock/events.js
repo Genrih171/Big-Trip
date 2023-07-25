@@ -56,15 +56,13 @@ const events = [{
 
 const addDestinations = (itemsEvents, itemsDestinations) => {
   itemsEvents.forEach((el) => {
-    const idDestination = el.destination;
-    el.destination = itemsDestinations.find((destination) => destination.id === idDestination);
+    el.destination = itemsDestinations.find((destination) => destination.id === el.destination);
   });
 };
 
 const addOffers = (itemsEvents, itemsOffers) => {
   itemsEvents.forEach((event) => {
-    const eventType = event.type;
-    const currentOfferType = itemsOffers.find((el) => el.type === eventType);
+    const currentOfferType = itemsOffers.find((el) => el.type === event.type);
     event.offers = event.offers.map((el) => currentOfferType.offers.find((offer) => offer.id === el));
   });
 };

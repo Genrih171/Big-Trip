@@ -1,4 +1,4 @@
-import { humanizeEventTime, getDifferenceTime, DATE_FORMAT} from '../util';
+import { humanizeEventTime, getEventDiffTime, DATE_FORMAT} from '../util';
 import { createElement } from '../render';
 
 function createTripEventTemplate(event) {
@@ -7,16 +7,8 @@ function createTripEventTemplate(event) {
   const eventDateFrom = humanizeEventTime(dateFrom);
   const eventDateTo = humanizeEventTime(dateTo);
   const eventDateMonth = humanizeEventTime(dateFrom, DATE_FORMAT.MONTH);
-  const getEventDiffTime = () => {
-    let diffTime = getDifferenceTime(dateTo, dateFrom);
-    if (diffTime > 60) {
-      diffTime = `${Math.floor(diffTime / 60)}H ${diffTime % 60}`;
-    }
-    return `${diffTime}M`;
-  };
 
   const eventType = Array.from(type)[0].toUpperCase() + type.slice(1);
-  const city = destination.name;
 
   const eventOffers = offers.map((el) =>
     `<li class="event__offer">
@@ -35,14 +27,14 @@ function createTripEventTemplate(event) {
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${eventType} ${city}</h3>
+      <h3 class="event__title">${eventType} ${destination.name}</h3>
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time" datetime="2019-03-18T10:30">${eventDateFrom}</time>
           &mdash;
           <time class="event__end-time" datetime="2019-03-18T11:00">${eventDateTo}</time>
         </p>
-        <p class="event__duration">${getEventDiffTime()}</p>
+        <p class="event__duration">${getEventDiffTime(dateTo, dateFrom)}</p>
       </div>
       <p class="event__price">
         &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
