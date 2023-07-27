@@ -201,24 +201,28 @@ function createEditEventTemplate(event, offersEvents) {
 }
 
 export default class EditEventView {
+  #element = null;
+  #event = null;
+  #offersEvents = null;
+
   constructor(event = BLANK_EVENT, offersEvents = BLANK_OFFERS) {
-    this.event = event;
-    this.offersEvents = offersEvents;
+    this.#event = event;
+    this.#offersEvents = offersEvents;
   }
 
-  getTemplate() {
-    return createEditEventTemplate(this.event, this.offersEvents);
+  get template() {
+    return createEditEventTemplate(this.#event, this.#offersEvents);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

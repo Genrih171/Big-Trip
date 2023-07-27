@@ -58,23 +58,26 @@ function createTripEventTemplate(event) {
 }
 
 export default class EventView {
+  #element = null;
+  #event = null;
+
   constructor({event}) {
-    this.event = event;
+    this.#event = event;
   }
 
-  getTemplate() {
-    return createTripEventTemplate(this.event);
+  get template() {
+    return createTripEventTemplate(this.#event);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
