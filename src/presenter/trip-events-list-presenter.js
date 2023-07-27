@@ -1,3 +1,4 @@
+import { isEscapeKey } from '../util';
 import TripEventsListView from '../view/trip-events-list-view';
 import TripSortView from '../view/trip-sort-view';
 import EditEventView from '../view/edit-event-view';
@@ -11,7 +12,7 @@ export default class TripEventsListPresenter {
   #events = [];
   #offers = [];
 
-  #tripEventList = new TripEventsListView();
+  #eventsListComponent = new TripEventsListView();
 
   constructor({eventsListContainer, eventsModel, offersModel}) {
     this.#eventsListContainer = eventsListContainer;
@@ -24,12 +25,44 @@ export default class TripEventsListPresenter {
     this.#offers = [...this.#offersModel.offers];
 
     render(new TripSortView(), this.#eventsListContainer);
-    render(this.#tripEventList, this.#eventsListContainer);
-    render(new EditEventView(this.#events[0], this.#offers), this.#tripEventList.element);
-    render(new EditEventView(), this.#tripEventList.element);
+    render(this.#eventsListComponent, this.#eventsListContainer);
 
-    for (let i = 1; i < this.#events.length; i++) {
-      render(new EventView({event: this.#events[i]}), this.#tripEventList.element);
+    for (let i = 0; i < this.#events.length; i++) {
+      this.#renderEvent(this.#events[i], this.#offers);
     }
+  }
+
+  #renderEvent(event, offersEvents) {
+    const eventComponent = new EventView({event});
+    const editEventComponent = new EditEventView({event, offersEvents});
+
+    const replaceCardToForm = () => this.#eventsListComponent.element.replaceChild(editEventComponent.element, eventComponent.element);
+
+    const replaceFormToCard = () => this.#eventsListComponent.element.replaceChild(eventComponent.element, editEventComponent.element);
+
+    const escKeyDownHandler = (evt) => {
+      if (isEscapeKey(evt)) {
+        evt.preventDefault();
+        replaceFormToCard();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    };
+
+    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceCardToForm();
+      document.addEventListener('keydown', escKeyDownHandler);
+    });
+
+    editEventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceFormToCard();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    });
+    editEventComponent.element.querySelector('form').addEventListener('submit', (evt) => {
+      evt.preventDefault();
+      replaceFormToCard();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    });
+
+    render(eventComponent, this.#eventsListComponent.element);
   }
 }

@@ -205,7 +205,7 @@ export default class EditEventView {
   #event = null;
   #offersEvents = null;
 
-  constructor(event = BLANK_EVENT, offersEvents = BLANK_OFFERS) {
+  constructor({event, offersEvents} = {event: BLANK_EVENT, offersEvents: BLANK_OFFERS}) {
     this.#event = event;
     this.#offersEvents = offersEvents;
   }
