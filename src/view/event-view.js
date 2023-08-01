@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view';
 import { humanizeEventTime, getEventDiffTime, DATE_FORMAT} from '../util';
 
-function createTripEventTemplate(event) {
+function createEventTemplate(event) {
   const {basePrice, dateFrom, dateTo, type, destination, isFavorite, offers} = event;
 
   const eventDateFrom = humanizeEventTime(dateFrom);
@@ -70,7 +70,7 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createTripEventTemplate(this.#event);
+    return createEventTemplate(this.#event);
   }
 
   #clickHandler = (evt) => {
