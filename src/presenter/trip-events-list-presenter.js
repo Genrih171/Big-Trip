@@ -25,7 +25,7 @@ export default class TripEventsListPresenter {
     this.#events = [...this.#eventsModel.events];
     this.#offers = [...this.#offersModel.offers];
 
-    if (this.#events.length === 0) {
+    if (!this.#events.length) {
       render(new EventsListEmptyView, this.#eventsListContainer);
     } else {
       render(new TripSortView(), this.#eventsListContainer);
