@@ -1,29 +1,73 @@
+import { isEscapeKey } from '../util';
 import TripEventsListView from '../view/trip-events-list-view';
 import TripSortView from '../view/trip-sort-view';
 import EditEventView from '../view/edit-event-view';
 import EventView from '../view/event-view';
+import EventsListEmptyView from '../view/events-list-empty-view';
 import { render } from '../render';
 
 export default class TripEventsListPresenter {
-  tripEventList = new TripEventsListView();
+  #eventsListContainer = null;
+  #eventsModel = null;
+  #offersModel = null;
+  #events = [];
+  #offers = [];
+
+  #eventsListComponent = new TripEventsListView();
 
   constructor({eventsListContainer, eventsModel, offersModel}) {
-    this.eventsListContainer = eventsListContainer;
-    this.eventsModel = eventsModel;
-    this.offersModel = offersModel;
+    this.#eventsListContainer = eventsListContainer;
+    this.#eventsModel = eventsModel;
+    this.#offersModel = offersModel;
   }
 
   init() {
-    this.events = [...this.eventsModel.getEvents()];
-    this.offers = [...this.offersModel.getOffers()];
+    this.#events = [...this.#eventsModel.events];
+    this.#offers = [...this.#offersModel.offers];
 
-    render(new TripSortView(), this.eventsListContainer);
-    render(this.tripEventList, this.eventsListContainer);
-    render(new EditEventView(this.events[0], this.offers), this.tripEventList.getElement());
-    render(new EditEventView(), this.tripEventList.getElement());
+    if (!this.#events.length) {
+      render(new EventsListEmptyView, this.#eventsListContainer);
+    } else {
+      render(new TripSortView(), this.#eventsListContainer);
+      render(this.#eventsListComponent, this.#eventsListContainer);
 
-    for (let i = 1; i < this.events.length; i++) {
-      render(new EventView({event: this.events[i]}), this.tripEventList.getElement());
+      for (let i = 0; i < this.#events.length; i++) {
+        this.#renderEvent(this.#events[i], this.#offers);
+      }
     }
+  }
+
+  #renderEvent(event, offersEvents) {
+    const eventComponent = new EventView({event});
+    const editEventComponent = new EditEventView({event, offersEvents});
+
+    const replaceCardToForm = () => this.#eventsListComponent.element.replaceChild(editEventComponent.element, eventComponent.element);
+
+    const replaceFormToCard = () => this.#eventsListComponent.element.replaceChild(eventComponent.element, editEventComponent.element);
+
+    const escKeyDownHandler = (evt) => {
+      if (isEscapeKey(evt)) {
+        evt.preventDefault();
+        replaceFormToCard();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    };
+
+    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceCardToForm();
+      document.addEventListener('keydown', escKeyDownHandler);
+    });
+
+    editEventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceFormToCard();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    });
+    editEventComponent.element.querySelector('form').addEventListener('submit', (evt) => {
+      evt.preventDefault();
+      replaceFormToCard();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    });
+
+    render(eventComponent, this.#eventsListComponent.element);
   }
 }

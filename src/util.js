@@ -24,4 +24,6 @@ const getEventDiffTime = (date1, date2, diffFormat) => {
   return `${diffTime}M`;
 };
 
-export {getRandomArrayElement, humanizeEventTime, getDifferenceTime, getEventDiffTime, DATE_FORMAT};
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
+export {getRandomArrayElement, humanizeEventTime, getDifferenceTime, getEventDiffTime, isEscapeKey, DATE_FORMAT};

@@ -1,14 +1,14 @@
 import { createElement } from '../render';
 
-function createTripEventsListTemplate() {
-  return '<ul class="trip-events__list"></ul>';
+function createEventsListEmptyTemplate() {
+  return '<p class="trip-events__msg">Click New Event to create your first point</p>';
 }
 
-export default class TripEventsListView {
+export default class EventsListEmptyView {
   #element = null;
 
   get template() {
-    return createTripEventsListTemplate();
+    return createEventsListEmptyTemplate();
   }
 
   get element() {
