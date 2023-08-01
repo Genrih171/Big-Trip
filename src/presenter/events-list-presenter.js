@@ -38,35 +38,38 @@ export default class EventsListPresenter {
   }
 
   #renderEvent(event, offersEvents) {
-    const eventComponent = new EventView({event});
-    const editEventComponent = new EditEventView({event, offersEvents});
-
-    const replaceCardToForm = () => this.#eventsListComponent.element.replaceChild(editEventComponent.element, eventComponent.element);
-
-    const replaceFormToCard = () => this.#eventsListComponent.element.replaceChild(eventComponent.element, editEventComponent.element);
-
     const escKeyDownHandler = (evt) => {
       if (isEscapeKey(evt)) {
         evt.preventDefault();
-        replaceFormToCard();
+        replaceFormToCard.call(this);
         document.removeEventListener('keydown', escKeyDownHandler);
       }
     };
 
-    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      replaceCardToForm();
-      document.addEventListener('keydown', escKeyDownHandler);
+    const eventComponent = new EventView({
+      event,
+      onClick: () => {
+        replaceCardToForm.call(this);
+        document.addEventListener('keydown', escKeyDownHandler);
+      }
     });
 
-    editEventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      replaceFormToCard();
-      document.removeEventListener('keydown', escKeyDownHandler);
+    const editEventComponent = new EditEventView({
+      event,
+      offersEvents,
+      onClick: () => {
+        replaceFormToCard.call(this);
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
     });
-    editEventComponent.element.querySelector('form').addEventListener('submit', (evt) => {
-      evt.preventDefault();
-      replaceFormToCard();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    });
+
+    function replaceCardToForm () {
+      this.#eventsListComponent.element.replaceChild(editEventComponent.element, eventComponent.element);
+    }
+
+    function replaceFormToCard () {
+      this.#eventsListComponent.element.replaceChild(eventComponent.element, editEventComponent.element);
+    }
 
     render(eventComponent, this.#eventsListComponent.element);
   }
