@@ -1,5 +1,5 @@
+import AbstractView from '../framework/view/abstract-view';
 import { humanizeEventTime, getEventDiffTime, DATE_FORMAT} from '../util';
-import { createElement } from '../render';
 
 function createTripEventTemplate(event) {
   const {basePrice, dateFrom, dateTo, type, destination, isFavorite, offers} = event;
@@ -57,27 +57,15 @@ function createTripEventTemplate(event) {
   );
 }
 
-export default class EventView {
-  #element = null;
+export default class EventView extends AbstractView {
   #event = null;
 
   constructor({event}) {
+    super();
     this.#event = event;
   }
 
   get template() {
     return createTripEventTemplate(this.#event);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

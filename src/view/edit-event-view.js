@@ -1,5 +1,5 @@
+import AbstractView from '../framework/view/abstract-view';
 import { humanizeEventTime, DATE_FORMAT} from '../util';
-import { createElement } from '../render';
 
 const BLANK_EVENT = {
   basePrice: '',
@@ -200,29 +200,17 @@ function createEditEventTemplate(event, offersEvents) {
   );
 }
 
-export default class EditEventView {
-  #element = null;
+export default class EditEventView extends AbstractView {
   #event = null;
   #offersEvents = null;
 
   constructor({event, offersEvents} = {event: BLANK_EVENT, offersEvents: BLANK_OFFERS}) {
+    super();
     this.#event = event;
     this.#offersEvents = offersEvents;
   }
 
   get template() {
     return createEditEventTemplate(this.#event, this.#offersEvents);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

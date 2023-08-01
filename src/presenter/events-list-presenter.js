@@ -1,19 +1,19 @@
 import { isEscapeKey } from '../util';
-import TripEventsListView from '../view/trip-events-list-view';
-import TripSortView from '../view/trip-sort-view';
+import EventsListView from '../view/events-list-view';
+import EventsSortView from '../view/events-sort-view';
 import EditEventView from '../view/edit-event-view';
 import EventView from '../view/event-view';
 import EventsListEmptyView from '../view/events-list-empty-view';
 import { render } from '../render';
 
-export default class TripEventsListPresenter {
+export default class EventsListPresenter {
   #eventsListContainer = null;
   #eventsModel = null;
   #offersModel = null;
   #events = [];
   #offers = [];
 
-  #eventsListComponent = new TripEventsListView();
+  #eventsListComponent = new EventsListView();
 
   constructor({eventsListContainer, eventsModel, offersModel}) {
     this.#eventsListContainer = eventsListContainer;
@@ -28,7 +28,7 @@ export default class TripEventsListPresenter {
     if (!this.#events.length) {
       render(new EventsListEmptyView, this.#eventsListContainer);
     } else {
-      render(new TripSortView(), this.#eventsListContainer);
+      render(new EventsSortView(), this.#eventsListContainer);
       render(this.#eventsListComponent, this.#eventsListContainer);
 
       for (let i = 0; i < this.#events.length; i++) {
