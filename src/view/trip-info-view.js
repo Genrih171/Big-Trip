@@ -3,34 +3,30 @@ import { humanizeEventTime, DATE_FORMAT } from '../util';
 
 function createTripInfoTemplate(events) {
   const getCities = () => {
-    const cities = [events[0].destination.name];
-    for (let i = 1; i < events.length; i++) {
-      if (events[i].destination.name !== events[i - 1].destination.name) {
-        cities.push(events[i].destination.name);
+    if (events.length) {
+      const cities = [events[0].destination.name];
+      for (let i = 1; i < events.length; i++) {
+        if (events[i].destination.name !== events[i - 1].destination.name) {
+          cities.push(events[i].destination.name);
+        }
       }
+      return cities.join(' — ');
     }
 
-    return cities.join(' — ');
+    return '';
   };
 
-  const dateFrom = humanizeEventTime(events[0].dateFrom, DATE_FORMAT.MONTH);
-  const dateTo = humanizeEventTime(events[events.length - 1].dateTo, DATE_FORMAT.DAY);
+  const getDateFrom = () => events.length ? humanizeEventTime(events[0].dateFrom, DATE_FORMAT.MONTH) : '';
+  const getDateTo = () => events.length ? humanizeEventTime(events[events.length - 1].dateTo, DATE_FORMAT.DAY) : '';
 
-  const getCost = () => {
-    let cost = 0;
-    events.forEach((el) => {
-      cost += el.basePrice;
-    });
-
-    return cost;
-  };
+  const getCost = () => events.reduce((acc, el) => acc + el.basePrice, 0);
 
   return (
     `<section class="trip-main__trip-info  trip-info">
     <div class="trip-info__main">
       <h1 class="trip-info__title">${getCities()}</h1>
 
-      <p class="trip-info__dates">${dateFrom}&nbsp;&mdash;&nbsp;${dateTo}</p>
+      <p class="trip-info__dates">${getDateFrom()}&nbsp;&mdash;&nbsp;${getDateTo()}</p>
     </div>
 
     <p class="trip-info__cost">

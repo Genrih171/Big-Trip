@@ -31,9 +31,7 @@ export default class EventsListPresenter {
       render(new EventsSortView(), this.#eventsListContainer);
       render(this.#eventsListComponent, this.#eventsListContainer);
 
-      for (let i = 0; i < this.#events.length; i++) {
-        this.#renderEvent(this.#events[i], this.#offers);
-      }
+      this.#events.forEach((ev) => this.#renderEvent(ev, this.#offers));
     }
   }
 
