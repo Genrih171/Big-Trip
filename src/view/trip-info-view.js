@@ -2,22 +2,24 @@ import AbstractView from '../framework/view/abstract-view';
 import { humanizeEventTime, DATE_FORMAT } from '../util';
 
 function createTripInfoTemplate(events) {
+  const eventsLength = events.length;
+
   const getCities = () => {
-    if (events.length) {
+    if (eventsLength) {
       const cities = [events[0].destination.name];
-      for (let i = 1; i < events.length; i++) {
+      for (let i = 1; i < eventsLength; i++) {
         if (events[i].destination.name !== events[i - 1].destination.name) {
           cities.push(events[i].destination.name);
         }
       }
-      return cities.join(' — ');
+      return cities.length <= 3 ? cities.join(' — ') : `${cities[0]} — ... — ${cities[cities.length - 1]}`;
     }
 
     return '';
   };
 
-  const getDateFrom = () => events.length ? humanizeEventTime(events[0].dateFrom, DATE_FORMAT.MONTH) : '';
-  const getDateTo = () => events.length ? humanizeEventTime(events[events.length - 1].dateTo, DATE_FORMAT.DAY) : '';
+  const getTripTime = () => eventsLength ?
+    `${humanizeEventTime(events[0].dateFrom, DATE_FORMAT.MONTH)} – ${humanizeEventTime(events[eventsLength - 1].dateTo, DATE_FORMAT.DAY)}` : '';
 
   const getCost = () => events.reduce((acc, el) => acc + el.basePrice, 0);
 
@@ -26,7 +28,7 @@ function createTripInfoTemplate(events) {
     <div class="trip-info__main">
       <h1 class="trip-info__title">${getCities()}</h1>
 
-      <p class="trip-info__dates">${getDateFrom()}&nbsp;&mdash;&nbsp;${getDateTo()}</p>
+      <p class="trip-info__dates">${getTripTime()}</p>
     </div>
 
     <p class="trip-info__cost">
