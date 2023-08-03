@@ -1,9 +1,7 @@
-import { isEscapeKey } from '../util';
 import EventListView from '../view/event-list-view';
 import EventSortView from '../view/event-sort-view';
-import EditEventView from '../view/edit-event-view';
-import EventView from '../view/event-view';
 import EventListEmptyView from '../view/event-list-empty-view';
+import EventPresenter from './event-presenter';
 import { render } from '../render';
 
 export default class EventBoardPresenter {
@@ -55,39 +53,9 @@ export default class EventBoardPresenter {
   }
 
   #renderEvent(event, offersEvents) {
-    const escKeyDownHandler = (evt) => {
-      if (isEscapeKey(evt)) {
-        evt.preventDefault();
-        replaceFormToCard.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const eventComponent = new EventView({
-      event,
-      onClick: () => {
-        replaceCardToForm.call(this);
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+    const eventPresenter = new EventPresenter({
+      eventListContainer: this.#eventListComponent.element
     });
-
-    const editEventComponent = new EditEventView({
-      event,
-      offersEvents,
-      onClick: () => {
-        replaceFormToCard.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    });
-
-    function replaceCardToForm () {
-      this.#eventListComponent.element.replaceChild(editEventComponent.element, eventComponent.element);
-    }
-
-    function replaceFormToCard () {
-      this.#eventListComponent.element.replaceChild(eventComponent.element, editEventComponent.element);
-    }
-
-    render(eventComponent, this.#eventListComponent.element);
+    eventPresenter.init(event, offersEvents);
   }
 }
