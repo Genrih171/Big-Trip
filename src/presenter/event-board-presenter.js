@@ -1,22 +1,23 @@
 import { isEscapeKey } from '../util';
-import EventsListView from '../view/events-list-view';
-import EventsSortView from '../view/events-sort-view';
+import EventListView from '../view/event-list-view';
+import EventSortView from '../view/event-sort-view';
 import EditEventView from '../view/edit-event-view';
 import EventView from '../view/event-view';
-import EventsListEmptyView from '../view/events-list-empty-view';
+import EventListEmptyView from '../view/event-list-empty-view';
 import { render } from '../render';
 
-export default class EventsListPresenter {
-  #eventsListContainer = null;
+export default class EventBoardPresenter {
   #eventsModel = null;
   #offersModel = null;
+
   #events = [];
   #offers = [];
 
-  #eventsListComponent = new EventsListView();
+  #eventBoardContainer = null;
+  #eventListComponent = new EventListView();
 
-  constructor({eventsListContainer, eventsModel, offersModel}) {
-    this.#eventsListContainer = eventsListContainer;
+  constructor({eventBoardContainer, eventsModel, offersModel}) {
+    this.#eventBoardContainer = eventBoardContainer;
     this.#eventsModel = eventsModel;
     this.#offersModel = offersModel;
   }
@@ -25,14 +26,32 @@ export default class EventsListPresenter {
     this.#events = [...this.#eventsModel.events];
     this.#offers = [...this.#offersModel.offers];
 
-    if (!this.#events.length) {
-      render(new EventsListEmptyView, this.#eventsListContainer);
-    } else {
-      render(new EventsSortView(), this.#eventsListContainer);
-      render(this.#eventsListComponent, this.#eventsListContainer);
+    this.#renderEventBoard();
 
-      this.#events.forEach((ev) => this.#renderEvent(ev, this.#offers));
+  }
+
+  #renderEmtyList() {
+    render(new EventListEmptyView, this.#eventBoardContainer);
+  }
+
+  #renderSort() {
+    render(new EventSortView(), this.#eventBoardContainer);
+  }
+
+  #renderEventList() {
+    render(this.#eventListComponent, this.#eventBoardContainer);
+
+    this.#events.forEach((ev) => this.#renderEvent(ev, this.#offers));
+  }
+
+  #renderEventBoard() {
+    if (!this.#events.length) {
+      this.#renderEmtyList();
+      return;
     }
+
+    this.#renderSort();
+    this.#renderEventList();
   }
 
   #renderEvent(event, offersEvents) {
@@ -62,13 +81,13 @@ export default class EventsListPresenter {
     });
 
     function replaceCardToForm () {
-      this.#eventsListComponent.element.replaceChild(editEventComponent.element, eventComponent.element);
+      this.#eventListComponent.element.replaceChild(editEventComponent.element, eventComponent.element);
     }
 
     function replaceFormToCard () {
-      this.#eventsListComponent.element.replaceChild(eventComponent.element, editEventComponent.element);
+      this.#eventListComponent.element.replaceChild(eventComponent.element, editEventComponent.element);
     }
 
-    render(eventComponent, this.#eventsListComponent.element);
+    render(eventComponent, this.#eventListComponent.element);
   }
 }

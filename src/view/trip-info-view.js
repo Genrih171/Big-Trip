@@ -9,7 +9,7 @@ function createTripInfoTemplate(events) {
     return cities.length <= 3 ? cities.join(' — ') : `${cities.at(0)} — ... — ${cities.at(-1)}`;
   };
 
-  const getTripTime = () => eventsLength ?
+  const tripTime = eventsLength ?
     `${humanizeEventTime(events.at(0).dateFrom, DATE_FORMAT.MONTH)} – ${humanizeEventTime(events.at(-1).dateTo, DATE_FORMAT.DAY)}` : '';
 
   const getCost = () => events.reduce((acc, el) => acc + el.basePrice, 0);
@@ -19,7 +19,7 @@ function createTripInfoTemplate(events) {
     <div class="trip-info__main">
       <h1 class="trip-info__title">${getCities()}</h1>
 
-      <p class="trip-info__dates">${getTripTime()}</p>
+      <p class="trip-info__dates">${tripTime}</p>
     </div>
 
     <p class="trip-info__cost">

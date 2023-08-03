@@ -31,7 +31,7 @@ function createEventsSortTemplate() {
   );
 }
 
-export default class EventsSortView extends AbstractView {
+export default class EventSortView extends AbstractView {
   get template() {
     return createEventsSortTemplate();
   }
