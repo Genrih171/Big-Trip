@@ -6,20 +6,15 @@ function createTripInfoTemplate(events) {
 
   const getCities = () => {
     if (eventsLength) {
-      const cities = [events[0].destination.name];
-      for (let i = 1; i < eventsLength; i++) {
-        if (events[i].destination.name !== events[i - 1].destination.name) {
-          cities.push(events[i].destination.name);
-        }
-      }
-      return cities.length <= 3 ? cities.join(' — ') : `${cities[0]} — ... — ${cities[cities.length - 1]}`;
+      const cities = events.map((el) => el.destination.name);
+      return cities.length <= 3 ? cities.join(' — ') : `${cities.at(0)} — ... — ${cities.at(-1)}`;
     }
 
     return '';
   };
 
   const getTripTime = () => eventsLength ?
-    `${humanizeEventTime(events[0].dateFrom, DATE_FORMAT.MONTH)} – ${humanizeEventTime(events[eventsLength - 1].dateTo, DATE_FORMAT.DAY)}` : '';
+    `${humanizeEventTime(events.at(0).dateFrom, DATE_FORMAT.MONTH)} – ${humanizeEventTime(events.at(-1).dateTo, DATE_FORMAT.DAY)}` : '';
 
   const getCost = () => events.reduce((acc, el) => acc + el.basePrice, 0);
 
