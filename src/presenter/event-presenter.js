@@ -1,6 +1,6 @@
 import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
-import { render, replace } from '../framework/render';
+import { remove, render, replace } from '../framework/render';
 import { isEscapeKey } from '../util';
 
 export default class EventPresenter {
@@ -11,17 +11,24 @@ export default class EventPresenter {
   #eventComponent = null;
   #editEventComponent = null;
 
-  constructor({eventListContainer}) {
+  #handleDataChange = null;
+
+  constructor({eventListContainer, onDataChange}) {
     this.#eventListContainer = eventListContainer;
+    this.#handleDataChange = onDataChange;
   }
 
   init(event, offersEvents) {
     this.#event = event;
     this.#offersEvents = offersEvents;
 
+    const preEventComponent = this.#eventComponent;
+    const preEditEventComponent = this.#editEventComponent;
+
     this.#eventComponent = new EventView({
       event,
-      onClick: this.#handleEditClick
+      onClick: this.#handleEditClick,
+      onFavoriteClick: this.#handleFavoriteClick
     });
 
     this.#editEventComponent = new EditEventView({
@@ -30,7 +37,27 @@ export default class EventPresenter {
       onClick: this.#handleSubmitForm
     });
 
-    render(this.#eventComponent, this.#eventListContainer);
+    if (preEventComponent === null || preEditEventComponent === null) {
+      render(this.#eventComponent, this.#eventListContainer);
+      return;
+    }
+
+    if (this.#eventListContainer.contains(preEventComponent.element)) {
+      replace(this.#eventComponent, preEventComponent);
+      return;
+    }
+
+    if (this.#eventListContainer.contains(preEditEventComponent.element)) {
+      replace(this.#editEventComponent, preEditEventComponent);
+    }
+
+    remove(preEventComponent);
+    remove(preEditEventComponent);
+  }
+
+  destroy() {
+    remove(this.#eventComponent);
+    remove(this.#editEventComponent);
   }
 
   #replaceCardToForm() {
@@ -54,5 +81,9 @@ export default class EventPresenter {
   #handleEditClick = () => this.#replaceCardToForm();
 
   #handleSubmitForm = () => this.#replaceFormToCard();
+
+  #handleFavoriteClick = () => {
+    this.#handleDataChange({...this.#event, isFavorite: !this.#event.isFavorite}, this.#offersEvents);
+  };
 
 }
