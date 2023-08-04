@@ -5,12 +5,8 @@ function createTripInfoTemplate(events) {
   const eventsLength = events.length;
 
   const getCities = () => {
-    if (eventsLength) {
-      const cities = events.map((el) => el.destination.name);
-      return cities.length <= 3 ? cities.join(' — ') : `${cities.at(0)} — ... — ${cities.at(-1)}`;
-    }
-
-    return '';
+    const cities = events.map((el) => el.destination.name);
+    return cities.length <= 3 ? cities.join(' — ') : `${cities.at(0)} — ... — ${cities.at(-1)}`;
   };
 
   const getTripTime = () => eventsLength ?
