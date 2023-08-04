@@ -1,7 +1,7 @@
+import AbstractView from '../framework/view/abstract-view';
 import { humanizeEventTime, getEventDiffTime, DATE_FORMAT} from '../util';
-import { createElement } from '../render';
 
-function createTripEventTemplate(event) {
+function createEventTemplate(event) {
   const {basePrice, dateFrom, dateTo, type, destination, isFavorite, offers} = event;
 
   const eventDateFrom = humanizeEventTime(dateFrom);
@@ -57,27 +57,24 @@ function createTripEventTemplate(event) {
   );
 }
 
-export default class EventView {
-  #element = null;
+export default class EventView extends AbstractView {
   #event = null;
+  #handleClick = null;
 
-  constructor({event}) {
+  constructor({event, onClick}) {
+    super();
     this.#event = event;
+    this.#handleClick = onClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
   }
 
   get template() {
-    return createTripEventTemplate(this.#event);
+    return createEventTemplate(this.#event);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleClick();
+  };
 }

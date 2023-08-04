@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 const DATE_FORMAT = {
   SHORT: 'HH:mm',
   FULL: 'DD/MM/YY HH:mm',
+  DAY: 'DD',
   MONTH: 'MMM DD'
 };
 
