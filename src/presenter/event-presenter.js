@@ -3,6 +3,10 @@ import EditEventView from '../view/edit-event-view';
 import { remove, render, replace } from '../framework/render';
 import { isEscapeKey } from '../util';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING'
+};
 export default class EventPresenter {
   #eventListContainer = null;
   #event = null;
@@ -12,10 +16,14 @@ export default class EventPresenter {
   #editEventComponent = null;
 
   #handleDataChange = null;
+  #handleModeChange = null;
 
-  constructor({eventListContainer, onDataChange}) {
+  #mode = Mode.DEFAULT;
+
+  constructor({eventListContainer, onDataChange, onModeChange}) {
     this.#eventListContainer = eventListContainer;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(event, offersEvents) {
@@ -42,12 +50,12 @@ export default class EventPresenter {
       return;
     }
 
-    if (this.#eventListContainer.contains(preEventComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#eventComponent, preEventComponent);
       return;
     }
 
-    if (this.#eventListContainer.contains(preEditEventComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#editEventComponent, preEditEventComponent);
     }
 
@@ -60,14 +68,23 @@ export default class EventPresenter {
     remove(this.#editEventComponent);
   }
 
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToCard();
+    }
+  }
+
   #replaceCardToForm() {
     replace(this.#editEventComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   }
 
   #replaceFormToCard() {
     replace(this.#eventComponent, this.#editEventComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 
   #escKeyDownHandler = (evt) => {

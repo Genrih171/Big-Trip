@@ -27,6 +27,10 @@ export default class EventBoardPresenter {
     this.#eventPresenters.get(updateEvent.id).init(updateEvent, offersEvents);
   };
 
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
   init() {
     this.#events = [...this.#eventsModel.events];
     this.#offers = [...this.#offersModel.offers];
@@ -45,7 +49,8 @@ export default class EventBoardPresenter {
   #renderEvent(event, offersEvents) {
     const eventPresenter = new EventPresenter({
       eventListContainer: this.#eventListComponent.element,
-      onDataChange: this.#handleEventChange
+      onDataChange: this.#handleEventChange,
+      onModeChange: this.#handleModeChange
     });
     eventPresenter.init(event, offersEvents);
     this.#eventPresenters.set(event.id, eventPresenter);
