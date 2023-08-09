@@ -2,17 +2,21 @@ import EventListView from '../view/event-list-view';
 import EventSortView from '../view/event-sort-view';
 import EventListEmptyView from '../view/event-list-empty-view';
 import EventPresenter from './event-presenter';
-import { render } from '../render';
-import { updateItem } from '../util';
+import { SortType } from '../const';
+import { render } from '../framework/render';
+import { updateItem, sortEventTime, sortEventPrice } from '../util';
 
 export default class EventBoardPresenter {
   #eventsModel = null;
   #offersModel = null;
 
   #events = [];
+  #sourceEvents = [];
   #offers = [];
 
   #eventBoardContainer = null;
+  #sortComponent = null;
+  #currentSortType = SortType.DAY;
   #eventListComponent = new EventListView();
   #eventPresenters = new Map();
 
@@ -24,6 +28,7 @@ export default class EventBoardPresenter {
 
   #handleEventChange = (updateEvent, offersEvents) => {
     this.#events = updateItem(this.#events, updateEvent);
+    this.#sourceEvents = updateItem(this.#sourceEvents, updateEvent);
     this.#eventPresenters.get(updateEvent.id).init(updateEvent, offersEvents);
   };
 
@@ -31,8 +36,19 @@ export default class EventBoardPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortEvent(sortType);
+    this.#clearEventList();
+    this.#renderEventList();
+  };
+
   init() {
     this.#events = [...this.#eventsModel.events];
+    this.#sourceEvents = [...this.#eventsModel.events];
     this.#offers = [...this.#offersModel.offers];
 
     this.#renderEventBoard();
@@ -43,7 +59,25 @@ export default class EventBoardPresenter {
   }
 
   #renderSort() {
-    render(new EventSortView(), this.#eventBoardContainer);
+    this.#sortComponent = new EventSortView({
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+    render(this.#sortComponent, this.#eventBoardContainer);
+  }
+
+  #sortEvent(sortType) {
+    switch (sortType) {
+      case SortType.TIME:
+        this.#events.sort(sortEventTime);
+        break;
+      case SortType.PRICE:
+        this.#events.sort(sortEventPrice);
+        break;
+      default:
+        this.#events = [...this.#sourceEvents];
+    }
+
+    this.#currentSortType = sortType;
   }
 
   #renderEvent(event, offersEvents) {
@@ -71,5 +105,10 @@ export default class EventBoardPresenter {
 
     this.#renderSort();
     this.#renderEventList();
+  }
+
+  #clearEventList() {
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
   }
 }
