@@ -27,4 +27,18 @@ const sortEventTime = (eventA, eventB) => getDiffTime(eventB.dateTo, eventB.date
 
 const sortEventPrice = (eventA, eventB) => eventB.basePrice - eventA.basePrice;
 
-export {DATE_FORMAT, humanizeEventTime, getDiffTime, getEventDiffTime, sortEventTime, sortEventPrice};
+const sortEventDay = (eventA, eventB) => {
+  const result = getDiffTime(eventA.dateTo, eventB.dateTo);
+
+  if (result < 0) {
+    return -1;
+  }
+
+  if (result > 0) {
+    return 1;
+  }
+
+  return 0;
+};
+
+export {DATE_FORMAT, humanizeEventTime, getDiffTime, getEventDiffTime, sortEventTime, sortEventPrice, sortEventDay};

@@ -5,14 +5,13 @@ import EventPresenter from './event-presenter';
 import { SortType } from '../const';
 import { render } from '../framework/render';
 import { updateItem} from '../utils/common';
-import { sortEventTime, sortEventPrice } from '../utils/event';
+import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
 
 export default class EventBoardPresenter {
   #eventsModel = null;
   #offersModel = null;
 
   #events = [];
-  #sourceEvents = [];
   #offers = [];
 
   #eventBoardContainer = null;
@@ -29,7 +28,6 @@ export default class EventBoardPresenter {
 
   #handleEventChange = (updateEvent, offersEvents) => {
     this.#events = updateItem(this.#events, updateEvent);
-    this.#sourceEvents = updateItem(this.#sourceEvents, updateEvent);
     this.#eventPresenters.get(updateEvent.id).init(updateEvent, offersEvents);
   };
 
@@ -49,7 +47,6 @@ export default class EventBoardPresenter {
 
   init() {
     this.#events = [...this.#eventsModel.events];
-    this.#sourceEvents = [...this.#eventsModel.events];
     this.#offers = [...this.#offersModel.offers];
 
     this.#renderEventBoard();
@@ -74,8 +71,8 @@ export default class EventBoardPresenter {
       case SortType.PRICE:
         this.#events.sort(sortEventPrice);
         break;
-      default:
-        this.#events = [...this.#sourceEvents];
+      case SortType.DAY:
+        this.#events.sort(sortEventDay);
     }
 
     this.#currentSortType = sortType;
@@ -92,6 +89,7 @@ export default class EventBoardPresenter {
   }
 
   #renderEventList() {
+    this.#sortEvent(this.#currentSortType);
     render(this.#eventListComponent, this.#eventBoardContainer);
 
     this.#events.forEach((ev) => this.#renderEvent(ev, this.#offers));
