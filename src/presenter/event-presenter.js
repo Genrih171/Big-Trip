@@ -1,7 +1,7 @@
 import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 import { remove, render, replace } from '../framework/render';
-import { isEscapeKey } from '../util';
+import { isEscapeKey } from '../utils/common';
 
 const Mode = {
   DEFAULT: 'DEFAULT',

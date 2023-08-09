@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
-import { humanizeEventTime, getEventDiffTime, DATE_FORMAT} from '../util';
+import { humanizeEventTime, getEventDiffTime, DATE_FORMAT} from '../utils/event';
 
 function createEventTemplate(event) {
   const {basePrice, dateFrom, dateTo, type, destination, isFavorite, offers} = event;

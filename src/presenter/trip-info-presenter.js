@@ -1,5 +1,5 @@
 import TripInfoView from '../view/trip-info-view';
-import { render, RenderPosition } from '../render';
+import { render, RenderPosition } from '../framework/render';
 
 export default class TripInfoPresenter {
   #pageHeaderContainer = null;

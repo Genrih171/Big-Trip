@@ -1,6 +1,6 @@
 import { destinations } from './destinations.js';
 import { offersByType } from './offers.js';
-import { getRandomArrayElement } from '../util.js';
+import { getRandomArrayElement } from '../utils/common.js';
 import { nanoid } from 'nanoid';
 
 

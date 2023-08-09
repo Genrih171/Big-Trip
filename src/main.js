@@ -1,7 +1,7 @@
 import EventFiltersView from './view/event-filters-view';
 import EventBoardPresenter from './presenter/event-board-presenter';
 import TripInfoPresenter from './presenter/trip-info-presenter';
-import { render,} from './render';
+import { render,} from './framework/render';
 import EventsModel from './model/events-model';
 import OffersModel from './model/offers-model';
 

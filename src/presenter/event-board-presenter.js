@@ -4,7 +4,8 @@ import EventListEmptyView from '../view/event-list-empty-view';
 import EventPresenter from './event-presenter';
 import { SortType } from '../const';
 import { render } from '../framework/render';
-import { updateItem, sortEventTime, sortEventPrice } from '../util';
+import { updateItem} from '../utils/common';
+import { sortEventTime, sortEventPrice } from '../utils/event';
 
 export default class EventBoardPresenter {
   #eventsModel = null;
