@@ -1,5 +1,3 @@
-import { destinations } from './destinations.js';
-import { offersByType } from './offers.js';
 import { getRandomArrayElement } from '../utils/common.js';
 import { nanoid } from 'nanoid';
 
@@ -50,25 +48,9 @@ const events = [{
   type: 'flight',
 },];
 
-const addDestinations = (itemsEvents, itemsDestinations) => {
-  itemsEvents.forEach((el) => {
-    el.destination = itemsDestinations.find((destination) => destination.id === el.destination);
-  });
-};
-
-const addOffers = (itemsEvents, itemsOffers) => {
-  itemsEvents.forEach((event) => {
-    const currentOfferType = itemsOffers.find((el) => el.type === event.type);
-    event.offers = event.offers.map((el) => currentOfferType.offers.find((offer) => offer.id === el));
-  });
-};
-
 const getRandomEvent = () => ({
   id: nanoid(),
   ...getRandomArrayElement(events)
 });
-
-addDestinations(events, destinations);
-addOffers(events, offersByType);
 
 export {getRandomEvent};

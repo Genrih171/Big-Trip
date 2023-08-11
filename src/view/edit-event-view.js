@@ -55,18 +55,18 @@ const BLANK_OFFERS = [{
   }]
 }];
 
-function createEditEventTemplate(state, offersEvents) {
-  const {basePrice, dateFrom, dateTo, type, destination, offers} = state;
+function createEditEventTemplate(state, offersCurrentType, destination) {
+  const {basePrice, dateFrom, dateTo, offers, type} = state;
 
   const eventDateFrom = humanizeEventTime(dateFrom, DATE_FORMAT.FULL);
   const eventDateTo = humanizeEventTime(dateTo, DATE_FORMAT.FULL);
 
   const eventType = Array.from(type)[0].toUpperCase() + type.slice(1);
 
-  const offersEvent = offersEvents.find((offer) => offer.type === type).offers.map((el) =>
+  const offersEvent = offersCurrentType.map((el) =>
     `<div class="event__offer-selector">
     <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${el.id}" type="checkbox" name="event-offer-luggage"
-    ${isChecked(offers.includes(el))}>
+    ${isChecked(offers.includes(el.id))}>
     <label class="event__offer-label" for="event-offer-${type}-${el.id}">
       <span class="event__offer-title">${el.title}</span>
       &plus;&euro;&nbsp;
@@ -167,20 +167,23 @@ function createEditEventTemplate(state, offersEvents) {
 }
 
 export default class EditEventView extends AbstractStatefulView {
-  #offersEvents = null;
+  #offersCurrentType = null;
+  #destination = null;
+
   #handleSubmitForm = null;
 
-  constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, onSubmitForm}) {
+  constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, destinations, onSubmitForm}) {
     super();
     this._state = event;
-    this.#offersEvents = offersEvents;
+    this.#offersCurrentType = offersEvents.find((offer) => offer.type === this._state.type).offers;
+    this.#destination = destinations.find((el) => el.id === this._state.destination);
     this.#handleSubmitForm = onSubmitForm;
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createEditEventTemplate(this._state, this.#offersEvents);
+    return createEditEventTemplate(this._state, this.#offersCurrentType, this.#destination);
   }
 
   _restoreHandlers() {

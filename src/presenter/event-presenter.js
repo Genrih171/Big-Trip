@@ -11,6 +11,7 @@ export default class EventPresenter {
   #eventListContainer = null;
   #event = null;
   #offersEvents = null;
+  #destinations = null;
 
   #eventComponent = null;
   #editEventComponent = null;
@@ -26,23 +27,27 @@ export default class EventPresenter {
     this.#handleModeChange = onModeChange;
   }
 
-  init(event, offersEvents) {
+  init(event, offersEvents, destinations) {
     this.#event = event;
     this.#offersEvents = offersEvents;
+    this.#destinations = destinations;
 
     const preEventComponent = this.#eventComponent;
     const preEditEventComponent = this.#editEventComponent;
 
     this.#eventComponent = new EventView({
-      event,
+      event: this.#event,
+      offersEvents: this.#offersEvents,
+      destinations: this.#destinations,
       onClick: this.#handleEditClick,
-      onFavoriteClick: this.#handleFavoriteClick
+      onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#editEventComponent = new EditEventView({
-      event,
-      offersEvents,
-      onSubmitForm: this.#handleSubmitForm
+      event: this.#event,
+      offersEvents: this.#offersEvents,
+      destinations: this.#destinations,
+      onSubmitForm: this.#handleSubmitForm,
     });
 
     if (preEventComponent === null || preEditEventComponent === null) {

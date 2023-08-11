@@ -10,9 +10,11 @@ import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
 export default class EventBoardPresenter {
   #eventsModel = null;
   #offersModel = null;
+  #destinationsModel = null;
 
   #events = [];
   #offers = [];
+  #destinations = [];
 
   #eventBoardContainer = null;
   #sortComponent = null;
@@ -20,10 +22,11 @@ export default class EventBoardPresenter {
   #eventListComponent = new EventListView();
   #eventPresenters = new Map();
 
-  constructor({eventBoardContainer, eventsModel, offersModel}) {
+  constructor({eventBoardContainer, eventsModel, offersModel, destinationsModel}) {
     this.#eventBoardContainer = eventBoardContainer;
     this.#eventsModel = eventsModel;
     this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
   }
 
   #handleEventChange = (updateEvent, offersEvents) => {
@@ -48,6 +51,7 @@ export default class EventBoardPresenter {
   init() {
     this.#events = [...this.#eventsModel.events];
     this.#offers = [...this.#offersModel.offers];
+    this.#destinations = [...this.#destinationsModel.destinations];
 
     this.#renderEventBoard();
   }
@@ -78,13 +82,13 @@ export default class EventBoardPresenter {
     this.#currentSortType = sortType;
   }
 
-  #renderEvent(event, offersEvents) {
+  #renderEvent(event, offersEvents, destinations) {
     const eventPresenter = new EventPresenter({
       eventListContainer: this.#eventListComponent.element,
       onDataChange: this.#handleEventChange,
       onModeChange: this.#handleModeChange
     });
-    eventPresenter.init(event, offersEvents);
+    eventPresenter.init(event, offersEvents, destinations);
     this.#eventPresenters.set(event.id, eventPresenter);
   }
 
@@ -92,7 +96,7 @@ export default class EventBoardPresenter {
     this.#sortEvent(this.#currentSortType);
     render(this.#eventListComponent, this.#eventBoardContainer);
 
-    this.#events.forEach((ev) => this.#renderEvent(ev, this.#offers));
+    this.#events.forEach((ev) => this.#renderEvent(ev, this.#offers, this.#destinations));
   }
 
 
