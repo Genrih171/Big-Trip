@@ -47,6 +47,7 @@ export default class EventPresenter {
       event: this.#event,
       offersEvents: this.#offersEvents,
       destinations: this.#destinations,
+      onChangeForm: this.#handleChangeForm,
       onSubmitForm: this.#handleSubmitForm,
     });
 
@@ -75,6 +76,7 @@ export default class EventPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToCard();
     }
   }
@@ -95,12 +97,18 @@ export default class EventPresenter {
   #escKeyDownHandler = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToCard();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   };
 
   #handleEditClick = () => this.#replaceCardToForm();
+
+  #handleChangeForm = () => {
+    this.#editEventComponent.reset(this.#event);
+    this.#replaceFormToCard();
+  };
 
   #handleSubmitForm = () => this.#replaceFormToCard();
 

@@ -1,11 +1,11 @@
 import AbstractView from '../framework/view/abstract-view';
 import { humanizeEventTime, DATE_FORMAT } from '../utils/event';
 
-function createTripInfoTemplate(events) {
+function createTripInfoTemplate(events, destinations) {
   const eventsLength = events.length;
 
   const getCities = () => {
-    const cities = events.map((el) => el.destination.name);
+    const cities = events.map((el) => destinations.find((dest) => dest.id === el.destination).name);
     return cities.length <= 3 ? cities.join(' — ') : `${cities.at(0)} — ... — ${cities.at(-1)}`;
   };
 
@@ -31,13 +31,15 @@ function createTripInfoTemplate(events) {
 
 export default class TripInfoView extends AbstractView {
   #events = null;
+  #destinations = null;
 
-  constructor(events) {
+  constructor(events, destinations) {
     super();
     this.#events = events;
+    this.#destinations = destinations;
   }
 
   get template() {
-    return createTripInfoTemplate(this.#events);
+    return createTripInfoTemplate(this.#events, this.#destinations);
   }
 }

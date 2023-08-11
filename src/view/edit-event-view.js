@@ -55,7 +55,7 @@ const BLANK_OFFERS = [{
   }]
 }];
 
-function createEditEventTemplate(state, offersCurrentType, destination) {
+function createEditEventTemplate(state, offersEvents, destinations) {
   const {basePrice, dateFrom, dateTo, offers, type} = state;
 
   const eventDateFrom = humanizeEventTime(dateFrom, DATE_FORMAT.FULL);
@@ -63,8 +63,10 @@ function createEditEventTemplate(state, offersCurrentType, destination) {
 
   const eventType = Array.from(type)[0].toUpperCase() + type.slice(1);
 
-  const offersEvent = offersCurrentType.map((el) =>
-    `<div class="event__offer-selector">
+  const destination = destinations.find((el) => el.id === state.destination);
+
+  const offersButtons = offersEvents.find((offer) => offer.type === state.type).offers.map((el) =>
+    `<div class="event__offer-selector" data-offer-id="${el.id}">
     <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${el.id}" type="checkbox" name="event-offer-luggage"
     ${isChecked(offers.includes(el.id))}>
     <label class="event__offer-label" for="event-offer-${type}-${el.id}">
@@ -150,7 +152,7 @@ function createEditEventTemplate(state, offersCurrentType, destination) {
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
           <div class="event__available-offers">
-            ${offersEvent}
+            ${offersButtons}
           </div>
         </section>
 
@@ -167,30 +169,39 @@ function createEditEventTemplate(state, offersCurrentType, destination) {
 }
 
 export default class EditEventView extends AbstractStatefulView {
-  #offersCurrentType = null;
-  #destination = null;
+  #offersEvents = null;
+  #destinations = null;
 
   #handleSubmitForm = null;
+  #handleChangeForm = null;
 
-  constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, destinations, onSubmitForm}) {
+  constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, destinations, onChangeForm, onSubmitForm}) {
     super();
-    this._state = event;
-    this.#offersCurrentType = offersEvents.find((offer) => offer.type === this._state.type).offers;
-    this.#destination = destinations.find((el) => el.id === this._state.destination);
+    this._setState(event);
+    this.#offersEvents = offersEvents;
+    this.#destinations = destinations;
+    this.#handleChangeForm = onChangeForm;
     this.#handleSubmitForm = onSubmitForm;
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createEditEventTemplate(this._state, this.#offersCurrentType, this.#destination);
+    return createEditEventTemplate(this._state, this.#offersEvents, this.#destinations);
+  }
+
+  reset(event) {
+    this.updateElement(event);
   }
 
   _restoreHandlers() {
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#submitFormHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#changeFormHandler);
     this.element.querySelector('form').addEventListener('submit', this.#submitFormHandler);
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeChangeHandler);
+    this.element.querySelector('.event__available-offers'). addEventListener('change', this.#offersChangeHandler);
   }
+
+  #changeFormHandler = () => this.#handleChangeForm();
 
   #submitFormHandler = (evt) => {
     evt.preventDefault();
@@ -198,11 +209,21 @@ export default class EditEventView extends AbstractStatefulView {
   };
 
   #eventTypeChangeHandler = (evt) => {
-    if (evt.target.className === 'event__type-input') {
+    if (!evt.target.closest('.event__type-input')) {
       return;
     }
 
     evt.target.parentElement.querySelector('input').checked = true;
-    this.updateElement({type: evt.target.parentElement.querySelector('input').value});
+    this.updateElement({type: evt.target.closest('.event__type-input').value});
+  };
+
+  #offersChangeHandler = (evt) => {
+    const offerId = +evt.target.closest('.event__offer-selector').dataset.offerId;
+    if (!this._state.offers.includes(offerId)) {
+      this._state.offers.push(offerId);
+      return;
+    }
+
+    this._state.offers = this._state.offers.filter((el) => el !== offerId);
   };
 }
