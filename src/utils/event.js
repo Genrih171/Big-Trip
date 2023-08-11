@@ -41,4 +41,6 @@ const sortEventDay = (eventA, eventB) => {
   return 0;
 };
 
-export {DATE_FORMAT, humanizeEventTime, getDiffTime, getEventDiffTime, sortEventTime, sortEventPrice, sortEventDay};
+const isChecked = (compare) => compare ? 'checked' : '';
+
+export {DATE_FORMAT, humanizeEventTime, getDiffTime, getEventDiffTime, sortEventTime, sortEventPrice, sortEventDay, isChecked};

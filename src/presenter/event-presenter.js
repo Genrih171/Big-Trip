@@ -42,7 +42,7 @@ export default class EventPresenter {
     this.#editEventComponent = new EditEventView({
       event,
       offersEvents,
-      onClick: this.#handleSubmitForm
+      onSubmitForm: this.#handleSubmitForm
     });
 
     if (preEventComponent === null || preEditEventComponent === null) {

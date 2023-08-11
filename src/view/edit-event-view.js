@@ -1,5 +1,6 @@
-import AbstractView from '../framework/view/abstract-view';
-import { humanizeEventTime, DATE_FORMAT} from '../utils/event';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import { humanizeEventTime, isChecked, DATE_FORMAT} from '../utils/event';
+import { EventTypes } from '../const';
 
 const BLANK_EVENT = {
   basePrice: '',
@@ -54,33 +55,41 @@ const BLANK_OFFERS = [{
   }]
 }];
 
-function createEditEventTemplate(event, offersEvents) {
-  const {basePrice, dateFrom, dateTo, type, destination, offers} = event;
+function createEditEventTemplate(state, offersEvents) {
+  const {basePrice, dateFrom, dateTo, type, destination, offers} = state;
 
   const eventDateFrom = humanizeEventTime(dateFrom, DATE_FORMAT.FULL);
   const eventDateTo = humanizeEventTime(dateTo, DATE_FORMAT.FULL);
 
   const eventType = Array.from(type)[0].toUpperCase() + type.slice(1);
 
-  const offersEvent = offersEvents.find((offer) => offer.type === type).offers.map((el) => {
-    const isChecked = offers.includes(el) ? 'checked' : '';
-
-    return `<div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${el.id}" type="checkbox" name="event-offer-luggage" ${isChecked}>
+  const offersEvent = offersEvents.find((offer) => offer.type === type).offers.map((el) =>
+    `<div class="event__offer-selector">
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${el.id}" type="checkbox" name="event-offer-luggage"
+    ${isChecked(offers.includes(el))}>
     <label class="event__offer-label" for="event-offer-${type}-${el.id}">
       <span class="event__offer-title">${el.title}</span>
       &plus;&euro;&nbsp;
       <span class="event__offer-price">${el.price}</span>
     </label>
-  </div>`;
-  }).join('');
+  </div>`
+  ).join('');
 
-  const photos = (event === BLANK_EVENT) ?
+  const photos =
     `<div class="event__photos-container">
     <div class="event__photos-tape">
       ${destination.pictures.map((el) => `<img class="event__photo" src=${el.src} alt=${el.description}>`).join('')}
     </div>
-  </div>` : '';
+  </div>`;
+
+  const eventTypesList = EventTypes.map((evType) =>
+    `<div class="event__type-item">
+    <input id="event-type-${evType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${evType}"
+    ${isChecked(evType === type)}>
+    <label class="event__type-label  event__type-label--${evType}" for="event-type-${evType}-1">
+    ${Array.from(evType)[0].toUpperCase() + evType.slice(1)}</label>
+  </div>`
+  ).join('');
 
   return (
     `<li class="trip-events__item">
@@ -97,50 +106,7 @@ function createEditEventTemplate(event, offersEvents) {
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
 
-              <div class="event__type-item">
-                <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-                <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-                <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-                <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-                <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-                <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked>
-                <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-                <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-                <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-                <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-              </div>
+              ${eventTypesList}
             </fieldset>
           </div>
         </div>
@@ -200,27 +166,40 @@ function createEditEventTemplate(event, offersEvents) {
   );
 }
 
-export default class EditEventView extends AbstractView {
-  #event = null;
+export default class EditEventView extends AbstractStatefulView {
   #offersEvents = null;
-  #handleClick = null;
+  #handleSubmitForm = null;
 
-  constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, onClick}) {
+  constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, onSubmitForm}) {
     super();
-    this.#event = event;
+    this._state = event;
     this.#offersEvents = offersEvents;
-    this.#handleClick = onClick;
+    this.#handleSubmitForm = onSubmitForm;
 
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
-    this.element.querySelector('form').addEventListener('submit', this.#clickHandler);
+    this._restoreHandlers();
   }
 
   get template() {
-    return createEditEventTemplate(this.#event, this.#offersEvents);
+    return createEditEventTemplate(this._state, this.#offersEvents);
   }
 
-  #clickHandler = (evt) => {
+  _restoreHandlers() {
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#submitFormHandler);
+    this.element.querySelector('form').addEventListener('submit', this.#submitFormHandler);
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeChangeHandler);
+  }
+
+  #submitFormHandler = (evt) => {
     evt.preventDefault();
-    this.#handleClick();
+    this.#handleSubmitForm();
+  };
+
+  #eventTypeChangeHandler = (evt) => {
+    if (evt.target.className === 'event__type-input') {
+      return;
+    }
+
+    evt.target.parentElement.querySelector('input').checked = true;
+    this.updateElement({type: evt.target.parentElement.querySelector('input').value});
   };
 }
