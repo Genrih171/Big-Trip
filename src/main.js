@@ -17,6 +17,7 @@ const destinationsModel = new DestinationsModel;
 const tripInfoPresenter = new TripInfoPresenter({
   pageHeaderContainer,
   eventsModel,
+  offersModel,
   destinationsModel
 });
 

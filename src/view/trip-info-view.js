@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view';
 import { humanizeEventTime, DATE_FORMAT } from '../utils/event';
 
-function createTripInfoTemplate(events, destinations) {
+function createTripInfoTemplate(events, offersEvents, destinations) {
   const eventsLength = events.length;
 
   const getCities = () => {
@@ -12,7 +12,21 @@ function createTripInfoTemplate(events, destinations) {
   const tripTime = eventsLength ?
     `${humanizeEventTime(events.at(0).dateFrom, DATE_FORMAT.MONTH)} – ${humanizeEventTime(events.at(-1).dateTo, DATE_FORMAT.DAY)}` : '';
 
-  const cost = events.reduce((acc, el) => acc + el.basePrice, 0);
+  const eventPrices = [...events.map((el) => el.basePrice)];
+
+  const offersPrices = [];
+  events.forEach((ev) => {
+    const offersCurrentType = offersEvents.find((offer) => offer.type === ev.type).offers;
+    if (offersCurrentType.length) {
+      ev.offers.forEach((offerId) => {
+        offersPrices.push(offersCurrentType.find((el) => el.id === offerId).price);
+      });
+    }
+  });
+
+  console.log(offersPrices);
+
+  const cost = [...eventPrices, ...offersPrices].reduce((acc, el) => acc + el, 0);
 
   return (
     `<section class="trip-main__trip-info  trip-info">
@@ -31,15 +45,17 @@ function createTripInfoTemplate(events, destinations) {
 
 export default class TripInfoView extends AbstractView {
   #events = null;
+  #offersEvents = null;
   #destinations = null;
 
-  constructor(events, destinations) {
+  constructor(events, offersEvents, destinations) {
     super();
     this.#events = events;
+    this.#offersEvents = offersEvents;
     this.#destinations = destinations;
   }
 
   get template() {
-    return createTripInfoTemplate(this.#events, this.#destinations);
+    return createTripInfoTemplate(this.#events, this.#offersEvents, this.#destinations);
   }
 }

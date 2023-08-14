@@ -67,7 +67,7 @@ function createEditEventTemplate(state, offersEvents, destinations) {
 
   const offersCurrentType = offersEvents.find((offer) => offer.type === state.type).offers;
 
-  const offersButtons = offersCurrentType.length ? `<section class="event__details">
+  const offersButtons = offersCurrentType.length ? `
   <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
