@@ -1,25 +1,6 @@
 const offersByType = [{
   type: 'taxi',
-  offers: [{
-    id: 1,
-    title: 'Blowjob',
-    price: 19
-  },
-  {
-    id: 2,
-    title: 'Offer 2',
-    price: 18
-  },
-  {
-    id: 3,
-    title: 'Offer 3',
-    price: 14
-  },
-  {
-    id: 4,
-    title: 'Offer 4',
-    price: 12
-  }]
+  offers: []
 },
 {
   type: 'bus',

@@ -8,8 +8,8 @@ const events = [{
   dateTo: new Date('2019-07-11T11:22:13.375Z'),
   destination: 1,
   isFavorite: false,
-  offers: [1, 4],
-  type: 'bus',
+  offers: [],
+  type: 'taxi',
 },
 {
   basePrice: 900,
