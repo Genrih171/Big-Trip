@@ -1,5 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { humanizeEventTime, isChecked, DATE_FORMAT} from '../utils/event';
+import { debounce } from '../utils/common';
 import { EventTypes } from '../const';
 
 const BLANK_EVENT = {
@@ -65,6 +66,22 @@ function createEditEventTemplate(state, offersEvents, destinations) {
 
   const destination = destinations.find((el) => el.id === state.destination);
 
+  const nameCity = destination ? destination.name : '';
+
+  const namesCityList = destinations.map((el) =>`<option value=${el.name}>${el.name}</option>`).join('');
+
+  const destinationContainer = destination ?
+    `<section class="event__section  event__section--destination">
+    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+    <p class="event__destination-description">${destination.description}</p>
+
+    <div class="event__photos-container">
+    <div class="event__photos-tape">
+      ${destination.pictures.map((el) => `<img class="event__photo" src=${el.src} alt=${el.description}>`).join('')}
+    </div>
+  </div>
+  </section>` : '';
+
   const offersCurrentType = offersEvents.find((offer) => offer.type === state.type).offers;
 
   const offersButtons = offersCurrentType.length ? `
@@ -85,13 +102,6 @@ function createEditEventTemplate(state, offersEvents, destinations) {
   ).join('')}
     </div>
   </section>` : '';
-
-  const photos =
-    `<div class="event__photos-container">
-    <div class="event__photos-tape">
-      ${destination.pictures.map((el) => `<img class="event__photo" src=${el.src} alt=${el.description}>`).join('')}
-    </div>
-  </div>`;
 
   const eventTypesList = EventTypes.map((evType) =>
     `<div class="event__type-item">
@@ -126,11 +136,9 @@ function createEditEventTemplate(state, offersEvents, destinations) {
           <label class="event__label  event__type-output" for="event-destination-1">
             ${eventType}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameCity}" list="destination-list-1">
           <datalist id="destination-list-1">
-            <option value="Amsterdam"></option>
-            <option value="Geneva"></option>
-            <option value="Chamonix"></option>
+            ${namesCityList}
           </datalist>
         </div>
 
@@ -160,12 +168,7 @@ function createEditEventTemplate(state, offersEvents, destinations) {
 
         ${offersButtons}
 
-        <section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${destination.description}</p>
-
-          ${photos}
-        </section>
+        ${destinationContainer}
       </section>
     </form>
   </li>`
@@ -181,7 +184,7 @@ export default class EditEventView extends AbstractStatefulView {
 
   constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, destinations, onChangeForm, onSubmitForm}) {
     super();
-    this._setState(event);
+    this._setState(EditEventView.parseEventToState(event));
     this.#offersEvents = offersEvents;
     this.#destinations = destinations;
     this.#handleChangeForm = onChangeForm;
@@ -207,6 +210,8 @@ export default class EditEventView extends AbstractStatefulView {
     if (offersContainer) {
       offersContainer.addEventListener('change', this.#offersChangeHandler);
     }
+
+    this.element.querySelector('#event-destination-1').addEventListener('input', this.#debounceCityChangeHandler);
   }
 
   #changeFormHandler = () => this.#handleChangeForm();
@@ -234,4 +239,24 @@ export default class EditEventView extends AbstractStatefulView {
 
     this._state.offers = this._state.offers.filter((el) => el !== offerId);
   };
+
+  #cityChangeHandler = (evt) => {
+    const currentDestination = this.#destinations.find((el) => evt.target.value === el.name);
+    if (!currentDestination) {
+      return;
+    }
+
+    this.updateElement({destination: currentDestination.id});
+  };
+
+  #debounceCityChangeHandler = debounce(this.#cityChangeHandler);
+
+  static parseEventToState(event) {
+    return {...event};
+  }
+
+  static parseStateToEvent(state) {
+    const event = {state};
+    return event;
+  }
 }
