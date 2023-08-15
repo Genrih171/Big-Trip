@@ -29,9 +29,9 @@ export default class EventBoardPresenter {
     this.#destinationsModel = destinationsModel;
   }
 
-  #handleEventChange = (updateEvent, offersEvents) => {
+  #handleEventChange = (updateEvent, offersEvents, destinations) => {
     this.#events = updateItem(this.#events, updateEvent);
-    this.#eventPresenters.get(updateEvent.id).init(updateEvent, offersEvents);
+    this.#eventPresenters.get(updateEvent.id).init(updateEvent, offersEvents, destinations);
   };
 
   #handleModeChange = () => {

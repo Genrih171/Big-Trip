@@ -113,7 +113,7 @@ export default class EventPresenter {
   #handleSubmitForm = () => this.#replaceFormToCard();
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#event, isFavorite: !this.#event.isFavorite}, this.#offersEvents);
+    this.#handleDataChange({...this.#event, isFavorite: !this.#event.isFavorite}, this.#offersEvents, this.#destinations);
   };
 
 }
