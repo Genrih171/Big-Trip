@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
-import { humanizeEventTime, DATE_FORMAT} from '../util';
+import { humanizeEventTime, DATE_FORMAT} from '../utils/event';
 
 const BLANK_EVENT = {
   basePrice: '',

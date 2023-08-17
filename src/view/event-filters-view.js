@@ -28,7 +28,7 @@ function createEventsFiltersTemplate() {
   );
 }
 
-export default class EventsFiltersView extends AbstractView {
+export default class EventFiltersView extends AbstractView {
 
   get template() {
     return createEventsFiltersTemplate();
