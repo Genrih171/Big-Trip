@@ -289,7 +289,6 @@ export default class EditEventView extends AbstractStatefulView {
         onChange: this.#dateChangeHandler('dateFrom')
       }
     );
-    console.log(this.#datepickerFrom, 'from');
   }
 
   #setDatepickerTo() {
@@ -302,7 +301,6 @@ export default class EditEventView extends AbstractStatefulView {
         onChange: this.#dateChangeHandler('dateTo')
       }
     );
-    console.log(this.#datepickerTo, 'to');
   }
 
   static parseEventToState(event) {
