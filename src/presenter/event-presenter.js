@@ -2,6 +2,7 @@ import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 import { remove, render, replace } from '../framework/render';
 import { isEscapeKey } from '../utils/common';
+import { UpdateType, UserAction } from '../const';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -21,16 +22,16 @@ export default class EventPresenter {
 
   #mode = Mode.DEFAULT;
 
-  constructor({eventListContainer, onDataChange, onModeChange}) {
+  constructor({eventListContainer, onDataChange, onModeChange, offersEvents, destinations}) {
     this.#eventListContainer = eventListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
-  }
-
-  init(event, offersEvents, destinations) {
-    this.#event = event;
     this.#offersEvents = offersEvents;
     this.#destinations = destinations;
+  }
+
+  init(event) {
+    this.#event = event;
 
     const preEventComponent = this.#eventComponent;
     const preEditEventComponent = this.#editEventComponent;
@@ -113,7 +114,11 @@ export default class EventPresenter {
   #handleSubmitForm = () => this.#replaceFormToCard();
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#event, isFavorite: !this.#event.isFavorite}, this.#offersEvents, this.#destinations);
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.PATCH,
+      {...this.#event, isFavorite: !this.#event.isFavorite},
+    );
   };
 
 }

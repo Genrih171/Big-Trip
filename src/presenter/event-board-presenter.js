@@ -2,19 +2,14 @@ import EventListView from '../view/event-list-view';
 import EventSortView from '../view/event-sort-view';
 import EventListEmptyView from '../view/event-list-empty-view';
 import EventPresenter from './event-presenter';
-import { SortType } from '../const';
+import { SortType, UpdateType, UserAction } from '../const';
 import { render } from '../framework/render';
-import { updateItem} from '../utils/common';
 import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
 
 export default class EventBoardPresenter {
   #eventsModel = null;
   #offersModel = null;
   #destinationsModel = null;
-
-  #events = [];
-  #offers = [];
-  #destinations = [];
 
   #eventBoardContainer = null;
   #sortComponent = null;
@@ -27,12 +22,32 @@ export default class EventBoardPresenter {
     this.#eventsModel = eventsModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
+
+    this.#eventsModel.addObserver(this.#handleModelEvent);
   }
 
-  #handleEventChange = (updateEvent, offersEvents, destinations) => {
-    this.#events = updateItem(this.#events, updateEvent);
-    this.#eventPresenters.get(updateEvent.id).init(updateEvent, offersEvents, destinations);
-  };
+  init() {
+    this.#renderEventBoard();
+  }
+
+  get events() {
+    switch (this.#currentSortType) {
+      case SortType.TIME:
+        return [...this.#eventsModel.events].sort(sortEventTime);
+      case SortType.PRICE:
+        return [...this.#eventsModel.events].sort(sortEventPrice);
+      default:
+        return [...this.#eventsModel.events].sort(sortEventDay);
+    }
+  }
+
+  get offers() {
+    return this.#offersModel.offers;
+  }
+
+  get destinations() {
+    return this.#destinationsModel.destinations;
+  }
 
   #handleModeChange = () => {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
@@ -43,18 +58,37 @@ export default class EventBoardPresenter {
       return;
     }
 
-    this.#sortEvent(sortType);
+    this.#currentSortType = sortType;
     this.#clearEventList();
     this.#renderEventList();
   };
 
-  init() {
-    this.#events = [...this.#eventsModel.events];
-    this.#offers = [...this.#offersModel.offers];
-    this.#destinations = [...this.#destinationsModel.destinations];
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this.#eventsModel.updateEvent(updateType, update);
+        break;
+      case UserAction.ADD_EVENT:
+        this.#eventsModel.addEvent(updateType, update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this.#eventsModel.deleteEvent(updateType, update);
+        break;
+    }
+  };
 
-    this.#renderEventBoard();
-  }
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#eventPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        break;
+      case UpdateType.MAJOR:
+        break;
+    }
+    console.log(this.events);
+  };
 
   #renderEmtyList() {
     render(new EventListEmptyView, this.#eventBoardContainer);
@@ -67,41 +101,27 @@ export default class EventBoardPresenter {
     render(this.#sortComponent, this.#eventBoardContainer);
   }
 
-  #sortEvent(sortType) {
-    switch (sortType) {
-      case SortType.TIME:
-        this.#events.sort(sortEventTime);
-        break;
-      case SortType.PRICE:
-        this.#events.sort(sortEventPrice);
-        break;
-      case SortType.DAY:
-        this.#events.sort(sortEventDay);
-    }
-
-    this.#currentSortType = sortType;
-  }
-
-  #renderEvent(event, offersEvents, destinations) {
+  #renderEvent(event) {
     const eventPresenter = new EventPresenter({
       eventListContainer: this.#eventListComponent.element,
-      onDataChange: this.#handleEventChange,
-      onModeChange: this.#handleModeChange
+      onDataChange: this.#handleViewAction,
+      onModeChange: this.#handleModeChange,
+      offersEvents: this.offers,
+      destinations: this.destinations,
     });
-    eventPresenter.init(event, offersEvents, destinations);
+    eventPresenter.init(event);
     this.#eventPresenters.set(event.id, eventPresenter);
   }
 
   #renderEventList() {
-    this.#sortEvent(this.#currentSortType);
     render(this.#eventListComponent, this.#eventBoardContainer);
 
-    this.#events.forEach((ev) => this.#renderEvent(ev, this.#offers, this.#destinations));
+    this.events.forEach((ev) => this.#renderEvent(ev, this.offers, this.destinations));
   }
 
 
   #renderEventBoard() {
-    if (!this.#events.length) {
+    if (!this.events.length) {
       this.#renderEmtyList();
       return;
     }

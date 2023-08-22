@@ -60,32 +60,32 @@ const BLANK_OFFERS = [{
 }];
 
 function createEditEventTemplate(state, offersEvents, destinations) {
-  const {basePrice, dateFrom, dateTo, offers, type} = state;
+  const {basePrice, dateFrom, dateTo, destination, offers, type} = state;
 
   const eventDateFrom = humanizeEventTime(dateFrom, DATE_FORMAT.FULL);
   const eventDateTo = humanizeEventTime(dateTo, DATE_FORMAT.FULL);
 
   const eventType = Array.from(type)[0].toUpperCase() + type.slice(1);
 
-  const destination = destinations.find((el) => el.id === state.destination);
+  const destinationEvent = destinations.find((el) => el.id === destination);
 
-  const nameCity = destination ? destination.name : '';
+  const nameCity = destinationEvent ? destinationEvent.name : '';
 
   const namesCityList = destinations.map((el) =>`<option value=${el.name}>${el.name}</option>`).join('');
 
-  const destinationContainer = destination ?
+  const destinationContainer = destinationEvent ?
     `<section class="event__section  event__section--destination">
     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-    <p class="event__destination-description">${destination.description}</p>
+    <p class="event__destination-description">${destinationEvent.description}</p>
 
     <div class="event__photos-container">
     <div class="event__photos-tape">
-      ${destination.pictures.map((el) => `<img class="event__photo" src=${el.src} alt=${el.description}>`).join('')}
+      ${destinationEvent.pictures.map((el) => `<img class="event__photo" src=${el.src} alt=${el.description}>`).join('')}
     </div>
   </div>
   </section>` : '';
 
-  const offersCurrentType = offersEvents.find((offer) => offer.type === state.type).offers;
+  const offersCurrentType = offersEvents.find((offer) => offer.type === type).offers;
 
   const offersButtons = offersCurrentType.length ? `
   <section class="event__section  event__section--offers">
@@ -253,11 +253,11 @@ export default class EditEventView extends AbstractStatefulView {
   #offersChangeHandler = (evt) => {
     const offerId = +evt.target.closest('.event__offer-selector').dataset.offerId;
     if (!this._state.offers.includes(offerId)) {
-      this._state.offers.push(offerId);
+      this._setState({offers: [...this._state.offers, offerId]});
       return;
     }
 
-    this._state.offers = this._state.offers.filter((el) => el !== offerId);
+    this._setState({offers: this._state.offers.filter((el) => el !== offerId)});
   };
 
   #cityChangeHandler = (evt) => {
