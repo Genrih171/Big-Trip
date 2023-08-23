@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
-import { humanizeEventTime, isChecked, DATE_FORMAT} from '../utils/event';
+import { humanizeEventTime, DATE_FORMAT} from '../utils/event';
 import { debounce } from '../utils/common';
 import { EventTypes } from '../const';
 import flatpickr from 'flatpickr';
@@ -95,7 +95,7 @@ function createEditEventTemplate(state, offersEvents, destinations) {
       ${offersCurrentType.map((el) =>
     `<div class="event__offer-selector" data-offer-id="${el.id}">
         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${el.id}" type="checkbox" name="event-offer-luggage"
-        ${isChecked(offers.includes(el.id))}>
+        ${offers.includes(el.id) ? 'checked' : ''}>
         <label class="event__offer-label" for="event-offer-${type}-${el.id}">
           <span class="event__offer-title">${el.title}</span>
           &plus;&euro;&nbsp;
@@ -109,7 +109,7 @@ function createEditEventTemplate(state, offersEvents, destinations) {
   const eventTypesList = EventTypes.map((evType) =>
     `<div class="event__type-item">
     <input id="event-type-${evType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${evType}"
-    ${isChecked(evType === type)}>
+    ${evType === type ? 'checked' : ''}>
     <label class="event__type-label  event__type-label--${evType}" for="event-type-${evType}-1">
     ${Array.from(evType)[0].toUpperCase() + evType.slice(1)}</label>
   </div>`
