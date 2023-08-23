@@ -2,6 +2,7 @@ import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 import { remove, render, replace } from '../framework/render';
 import { isEscapeKey } from '../utils/common';
+import { isDateEqual } from '../utils/event';
 import { UpdateType, UserAction } from '../const';
 
 const Mode = {
@@ -111,7 +112,17 @@ export default class EventPresenter {
     this.#replaceFormToCard();
   };
 
-  #handleSubmitForm = () => this.#replaceFormToCard();
+  #handleSubmitForm = (update) => {
+    const isMinorUpdate = !isDateEqual(this.#event.dateFrom, update.dateFrom) || !isDateEqual(this.#event.dateTo, update.dateTo) ||
+    this.#event.basePrice !== update.basePrice;
+
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update,
+    );
+    this.#replaceFormToCard();
+  };
 
   #handleFavoriteClick = () => {
     this.#handleDataChange(

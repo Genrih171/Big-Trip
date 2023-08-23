@@ -232,13 +232,15 @@ export default class EditEventView extends AbstractStatefulView {
     this.element.querySelector('#event-destination-1').addEventListener('input', this.#debounceCityChangeHandler);
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
+
+    this.element.querySelector('#event-price-1').addEventListener('input', this.#basePriceChangeHandler);
   }
 
   #changeFormHandler = () => this.#handleChangeForm();
 
   #submitFormHandler = (evt) => {
     evt.preventDefault();
-    this.#handleSubmitForm();
+    this.#handleSubmitForm(EditEventView.parseStateToEvent(this._state));
   };
 
   #eventTypeChangeHandler = (evt) => {
@@ -247,7 +249,10 @@ export default class EditEventView extends AbstractStatefulView {
     }
 
     evt.target.parentElement.querySelector('input').checked = true;
-    this.updateElement({type: evt.target.closest('.event__type-input').value});
+    this.updateElement({
+      type: evt.target.closest('.event__type-input').value,
+      offers: [],
+    });
   };
 
   #offersChangeHandler = (evt) => {
@@ -280,6 +285,10 @@ export default class EditEventView extends AbstractStatefulView {
     };
   }
 
+  #basePriceChangeHandler = (evt) => {
+    this._setState({basePrice: evt.target.value});
+  };
+
   #setDatepickerFrom() {
     this.#datepickerFrom = flatpickr(
       this.element.querySelector('#event-start-time-1'), {
@@ -308,7 +317,7 @@ export default class EditEventView extends AbstractStatefulView {
   }
 
   static parseStateToEvent(state) {
-    const event = {state};
+    const event = {...state};
     return event;
   }
 }

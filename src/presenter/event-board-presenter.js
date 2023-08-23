@@ -3,7 +3,7 @@ import EventSortView from '../view/event-sort-view';
 import EventListEmptyView from '../view/event-list-empty-view';
 import EventPresenter from './event-presenter';
 import { SortType, UpdateType, UserAction } from '../const';
-import { render } from '../framework/render';
+import { remove, render } from '../framework/render';
 import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
 
 export default class EventBoardPresenter {
@@ -15,6 +15,7 @@ export default class EventBoardPresenter {
   #sortComponent = null;
   #currentSortType = SortType.DAY;
   #eventListComponent = new EventListView();
+  #emptyListComponent = null;
   #eventPresenters = new Map();
 
   constructor({eventBoardContainer, eventsModel, offersModel, destinationsModel}) {
@@ -59,8 +60,8 @@ export default class EventBoardPresenter {
     }
 
     this.#currentSortType = sortType;
-    this.#clearEventList();
-    this.#renderEventList();
+    this.#clearEventBoard();
+    this.#renderEventBoard();
   };
 
   #handleViewAction = (actionType, updateType, update) => {
@@ -83,19 +84,25 @@ export default class EventBoardPresenter {
         this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
+        this.#clearEventBoard();
+        this.#renderEventBoard();
         break;
       case UpdateType.MAJOR:
+        this.#clearEventBoard({resetSortType: true});
+        this.#renderEventBoard();
         break;
     }
-    console.log(this.events);
   };
 
   #renderEmtyList() {
-    render(new EventListEmptyView, this.#eventBoardContainer);
+    this.#emptyListComponent = new EventListEmptyView();
+
+    render(this.#emptyListComponent, this.#eventBoardContainer);
   }
 
   #renderSort() {
     this.#sortComponent = new EventSortView({
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
     render(this.#sortComponent, this.#eventBoardContainer);
@@ -130,8 +137,18 @@ export default class EventBoardPresenter {
     this.#renderEventList();
   }
 
-  #clearEventList() {
+  #clearEventBoard({resetSortType = false} = {}) {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
+
+    remove(this.#sortComponent);
+
+    if (this.#emptyListComponent) {
+      remove(this.#emptyListComponent);
+    }
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
   }
 }
