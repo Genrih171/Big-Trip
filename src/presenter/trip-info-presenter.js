@@ -1,7 +1,6 @@
 import TripInfoView from '../view/trip-info-view';
 import { remove, render, RenderPosition } from '../framework/render';
 import { sortEventDay } from '../utils/event';
-import { UpdateType } from '../const';
 
 export default class TripInfoPresenter {
   #pageHeaderContainer = null;

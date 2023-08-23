@@ -51,6 +51,7 @@ export default class EventPresenter {
       destinations: this.#destinations,
       onChangeForm: this.#handleChangeForm,
       onSubmitForm: this.#handleSubmitForm,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     if (preEventComponent === null || preEditEventComponent === null) {
@@ -129,6 +130,14 @@ export default class EventPresenter {
       UserAction.UPDATE_EVENT,
       UpdateType.PATCH,
       {...this.#event, isFavorite: !this.#event.isFavorite},
+    );
+  };
+
+  #handleDeleteClick = () => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      {...this.#event},
     );
   };
 

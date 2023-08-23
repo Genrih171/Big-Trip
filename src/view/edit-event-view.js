@@ -186,14 +186,16 @@ export default class EditEventView extends AbstractStatefulView {
 
   #handleSubmitForm = null;
   #handleChangeForm = null;
+  #handleDeleteClick = null;
 
-  constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, destinations, onChangeForm, onSubmitForm}) {
+  constructor({event = BLANK_EVENT, offersEvents = BLANK_OFFERS, destinations, onChangeForm, onSubmitForm, onDeleteClick}) {
     super();
     this._setState(EditEventView.parseEventToState(event));
     this.#offersEvents = offersEvents;
     this.#destinations = destinations;
     this.#handleChangeForm = onChangeForm;
     this.#handleSubmitForm = onSubmitForm;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
@@ -222,6 +224,7 @@ export default class EditEventView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#changeFormHandler);
     this.element.querySelector('form').addEventListener('submit', this.#submitFormHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeChangeHandler);
 
     const offersContainer = this.element.querySelector('.event__available-offers');
@@ -241,6 +244,11 @@ export default class EditEventView extends AbstractStatefulView {
   #submitFormHandler = (evt) => {
     evt.preventDefault();
     this.#handleSubmitForm(EditEventView.parseStateToEvent(this._state));
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick();
   };
 
   #eventTypeChangeHandler = (evt) => {
