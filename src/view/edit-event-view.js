@@ -286,7 +286,7 @@ export default class EditEventView extends AbstractStatefulView {
   }
 
   #basePriceChangeHandler = (evt) => {
-    this._setState({basePrice: evt.target.value});
+    this._setState({basePrice: +evt.target.value});
   };
 
   #setDatepickerFrom() {
