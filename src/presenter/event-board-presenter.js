@@ -5,9 +5,11 @@ import EventPresenter from './event-presenter';
 import { SortType, UpdateType, UserAction } from '../const';
 import { remove, render } from '../framework/render';
 import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
+import { filter } from '../utils/filter';
 
 export default class EventBoardPresenter {
   #eventsModel = null;
+  #filterModel = null;
   #offersModel = null;
   #destinationsModel = null;
 
@@ -18,13 +20,15 @@ export default class EventBoardPresenter {
   #emptyListComponent = null;
   #eventPresenters = new Map();
 
-  constructor({eventBoardContainer, eventsModel, offersModel, destinationsModel}) {
+  constructor({eventBoardContainer, eventsModel, filterModel, offersModel, destinationsModel}) {
     this.#eventBoardContainer = eventBoardContainer;
     this.#eventsModel = eventsModel;
+    this.#filterModel = filterModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
@@ -32,13 +36,15 @@ export default class EventBoardPresenter {
   }
 
   get events() {
+    const filteredEvents = filter[this.#filterModel.filter]([...this.#eventsModel.events]);
+
     switch (this.#currentSortType) {
       case SortType.TIME:
-        return [...this.#eventsModel.events].sort(sortEventTime);
+        return filteredEvents.sort(sortEventTime);
       case SortType.PRICE:
-        return [...this.#eventsModel.events].sort(sortEventPrice);
+        return filteredEvents.sort(sortEventPrice);
       default:
-        return [...this.#eventsModel.events].sort(sortEventDay);
+        return filteredEvents.sort(sortEventDay);
     }
   }
 
@@ -95,7 +101,7 @@ export default class EventBoardPresenter {
   };
 
   #renderEmtyList() {
-    this.#emptyListComponent = new EventListEmptyView();
+    this.#emptyListComponent = new EventListEmptyView(this.#filterModel.filter);
 
     render(this.#emptyListComponent, this.#eventBoardContainer);
   }

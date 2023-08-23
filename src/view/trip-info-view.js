@@ -10,7 +10,7 @@ function createTripInfoTemplate(events, offersEvents, destinations) {
   };
 
   const tripTime = eventsLength ?
-    `${humanizeEventTime(events.at(0).dateFrom, DATE_FORMAT.MONTH)} – ${humanizeEventTime(events.at(-1).dateTo, DATE_FORMAT.DAY)}` : '';
+    `${humanizeEventTime(events.at(0).dateFrom, DATE_FORMAT.MONTH)} – ${humanizeEventTime(events.at(-1).dateTo, DATE_FORMAT.MONTH)}` : '';
 
   const eventPrices = [...events.map((el) => el.basePrice)];
 

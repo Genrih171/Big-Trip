@@ -1,5 +1,12 @@
 const EventTypes = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
+const FilterTypes = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
+};
+
 const SortType = {
   DAY: 'day',
   TIME: 'time',
@@ -18,4 +25,4 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
-export {SortType, EventTypes, UserAction, UpdateType};
+export {SortType, EventTypes, UserAction, UpdateType, FilterTypes};
