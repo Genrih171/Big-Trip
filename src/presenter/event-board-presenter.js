@@ -2,10 +2,11 @@ import EventListView from '../view/event-list-view';
 import EventSortView from '../view/event-sort-view';
 import EventListEmptyView from '../view/event-list-empty-view';
 import EventPresenter from './event-presenter';
-import { SortType, UpdateType, UserAction } from '../const';
+import { FilterTypes, SortType, UpdateType, UserAction } from '../const';
 import { remove, render } from '../framework/render';
 import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
 import { filter } from '../utils/filter';
+import NewEventPresenter from './new-event-presenter';
 
 export default class EventBoardPresenter {
   #eventsModel = null;
@@ -19,8 +20,9 @@ export default class EventBoardPresenter {
   #eventListComponent = new EventListView();
   #emptyListComponent = null;
   #eventPresenters = new Map();
+  #newEventPresenter = null;
 
-  constructor({eventBoardContainer, eventsModel, filterModel, offersModel, destinationsModel}) {
+  constructor({eventBoardContainer, eventsModel, filterModel, offersModel, destinationsModel, onNewEventDestory}) {
     this.#eventBoardContainer = eventBoardContainer;
     this.#eventsModel = eventsModel;
     this.#filterModel = filterModel;
@@ -29,6 +31,14 @@ export default class EventBoardPresenter {
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
+
+    this.#newEventPresenter = new NewEventPresenter({
+      eventListContainer: this.#eventListComponent.element,
+      offersEvents: this.offers,
+      destinations: this.destinations,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewEventDestory,
+    });
   }
 
   init() {
@@ -54,6 +64,11 @@ export default class EventBoardPresenter {
 
   get destinations() {
     return this.#destinationsModel.destinations;
+  }
+
+  createNewEvent() {
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterTypes.EVERYTHING);
+    this.#newEventPresenter.init();
   }
 
   #handleModeChange = () => {

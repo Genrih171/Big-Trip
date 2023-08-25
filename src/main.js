@@ -5,6 +5,8 @@ import OffersModel from './model/offers-model';
 import DestinationsModel from './model/destinations-model';
 import FiltersPresenter from './presenter/filters-presenter';
 import FilterModel from './model/filter-model';
+import NewEventButtonView from './view/new-event-button-view';
+import { RenderPosition, render } from './framework/render';
 
 const pageHeaderContainer = document.querySelector('.trip-main');
 const eventFiltersList = pageHeaderContainer.querySelector('.trip-controls__filters');
@@ -32,8 +34,23 @@ const eventBoardPresenter = new EventBoardPresenter({
   eventsModel,
   filterModel,
   offersModel,
-  destinationsModel
+  destinationsModel,
+  onNewEventDestory: handleNewEventFormClose,
 });
+
+const newEventButton = new NewEventButtonView({
+  onClick: handleNewEventButtonClick
+});
+render(newEventButton, pageHeaderContainer, RenderPosition.BEFOREEND);
+
+function handleNewEventButtonClick () {
+  eventBoardPresenter.createNewEvent();
+  newEventButton.element.disabled = true;
+}
+
+function handleNewEventFormClose () {
+  newEventButton.element.disabled = false;
+}
 
 tripInfoPresenter.init();
 filtersPresenter.init();
