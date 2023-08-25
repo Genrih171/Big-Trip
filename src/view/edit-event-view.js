@@ -1,6 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { humanizeEventTime, DATE_FORMAT} from '../utils/event';
-import { debounce } from '../utils/common';
 import { EventTypes } from '../const';
 import flatpickr from 'flatpickr';
 
