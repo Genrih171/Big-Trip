@@ -6,6 +6,8 @@ import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
+const PATTERN = /[^\d]/g;
+
 const BLANK_EVENT = {
   basePrice: '',
   dateFrom: '',
@@ -146,6 +148,8 @@ export default class EditEventView extends AbstractStatefulView {
   #handleChangeForm = null;
   #handleDeleteClick = null;
 
+  #inputCityName = null;
+
   constructor({event = BLANK_EVENT, offersEvents, destinations, onChangeForm, onSubmitForm, onDeleteClick}) {
     super();
     this._setState(EditEventView.parseEventToState(event));
@@ -190,7 +194,8 @@ export default class EditEventView extends AbstractStatefulView {
       offersContainer.addEventListener('change', this.#offersChangeHandler);
     }
 
-    this.element.querySelector('#event-destination-1').addEventListener('input', this.#debounceCityChangeHandler);
+    this.#inputCityName = this.element.querySelector('#event-destination-1');
+    this.#inputCityName.addEventListener('input', this.#cityChangeHandler);
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
 
@@ -201,6 +206,10 @@ export default class EditEventView extends AbstractStatefulView {
 
   #submitFormHandler = (evt) => {
     evt.preventDefault();
+    if (!this.#destinations.find((el) => this.#inputCityName.value === el.name)) {
+      this.#inputCityName.style.border = 'solid 3px red';
+      return;
+    }
     this.#handleSubmitForm(EditEventView.parseStateToEvent(this._state));
   };
 
@@ -237,10 +246,9 @@ export default class EditEventView extends AbstractStatefulView {
       return;
     }
 
+    evt.target.style.border = 'none';
     this.updateElement({destination: currentDestination.id});
   };
-
-  #debounceCityChangeHandler = debounce(this.#cityChangeHandler);
 
   #dateChangeHandler(type) {
     const dateType = type;
@@ -252,6 +260,7 @@ export default class EditEventView extends AbstractStatefulView {
   }
 
   #basePriceChangeHandler = (evt) => {
+    evt.target.value = evt.target.value.replace(PATTERN, '');
     this._setState({basePrice: +evt.target.value});
   };
 
