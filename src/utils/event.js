@@ -41,4 +41,6 @@ const sortEventDay = (eventA, eventB) => {
   return 0;
 };
 
-export {DATE_FORMAT, humanizeEventTime, getDiffTime, getEventDiffTime, sortEventTime, sortEventPrice, sortEventDay};
+const isDateEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB, 'minute');
+
+export {DATE_FORMAT, humanizeEventTime, getDiffTime, getEventDiffTime, sortEventTime, sortEventPrice, sortEventDay, isDateEqual};

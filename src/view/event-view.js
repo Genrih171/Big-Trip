@@ -1,8 +1,8 @@
 import AbstractView from '../framework/view/abstract-view';
 import { humanizeEventTime, getEventDiffTime, DATE_FORMAT} from '../utils/event';
 
-function createEventTemplate(event) {
-  const {basePrice, dateFrom, dateTo, type, destination, isFavorite, offers} = event;
+function createEventTemplate(event, offersCurrentType, destination) {
+  const {basePrice, dateFrom, dateTo, offers, type, isFavorite} = event;
 
   const eventDateFrom = humanizeEventTime(dateFrom);
   const eventDateTo = humanizeEventTime(dateTo);
@@ -10,11 +10,11 @@ function createEventTemplate(event) {
 
   const eventType = Array.from(type)[0].toUpperCase() + type.slice(1);
 
-  const eventOffers = offers.map((el) =>
+  const offersEvent = offers.map((id) =>
     `<li class="event__offer">
-    <span class="event__offer-title">${el.title}</span>
+    <span class="event__offer-title">${offersCurrentType.find((el) => el.id === id).title}</span>
     &plus;&euro;&nbsp;
-    <span class="event__offer-price">${el.price}</span>
+    <span class="event__offer-price">${offersCurrentType.find((el) => el.id === id).price}</span>
   </li>`
   ).join('');
 
@@ -41,7 +41,7 @@ function createEventTemplate(event) {
       </p>
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        ${eventOffers}
+        ${offersEvent}
       </ul>
       <button class="event__favorite-btn ${favoriteClass}" type="button">
         <span class="visually-hidden">Add to favorite</span>
@@ -59,12 +59,16 @@ function createEventTemplate(event) {
 
 export default class EventView extends AbstractView {
   #event = null;
+  #offersCurrentType = null;
+  #destination = null;
   #handleClick = null;
   #handlefavoriteClick = null;
 
-  constructor({event, onClick, onFavoriteClick}) {
+  constructor({event, offersEvents, destinations, onClick, onFavoriteClick}) {
     super();
     this.#event = event;
+    this.#offersCurrentType = offersEvents.find((offer) => offer.type === this.#event.type).offers;
+    this.#destination = destinations.find((el) => el.id === this.#event.destination);
     this.#handleClick = onClick;
     this.#handlefavoriteClick = onFavoriteClick;
 
@@ -73,7 +77,7 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createEventTemplate(this.#event);
+    return createEventTemplate(this.#event, this.#offersCurrentType, this.#destination);
   }
 
   #clickHandler = (evt) => {

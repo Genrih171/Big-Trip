@@ -1,24 +1,28 @@
 const offersByType = [{
+  type: 'taxi',
+  offers: []
+},
+{
   type: 'bus',
   offers: [{
     id: 1,
     title: 'Blowjob',
-    price: 120
+    price: 111
   },
   {
     id: 2,
     title: 'Offer 2',
-    price: 300
+    price: 222
   },
   {
     id: 3,
     title: 'Offer 3',
-    price: 500
+    price: 333
   },
   {
     id: 4,
     title: 'Offer 4',
-    price: 770
+    price: 444
   }]
 },
 {
@@ -26,22 +30,22 @@ const offersByType = [{
   offers: [{
     id: 1,
     title: 'Blowjob',
-    price: 120
+    price: 555
   },
   {
     id: 2,
     title: 'Offer 2',
-    price: 300
+    price: 666
   },
   {
     id: 3,
     title: 'Offer 3',
-    price: 500
+    price: 777
   },
   {
     id: 4,
     title: 'Offer 4',
-    price: 770
+    price: 888
   }]
 },
 {
@@ -49,22 +53,22 @@ const offersByType = [{
   offers: [{
     id: 1,
     title: 'Blowjob',
-    price: 120
+    price: 999
   },
   {
     id: 2,
     title: 'Offer 2',
-    price: 300
+    price: 159
   },
   {
     id: 3,
     title: 'Offer 3',
-    price: 500
+    price: 951
   },
   {
     id: 4,
     title: 'Offer 4',
-    price: 770
+    price: 654
   }]
 },
 {
@@ -72,22 +76,22 @@ const offersByType = [{
   offers: [{
     id: 1,
     title: 'Blowjob',
-    price: 120
+    price: 987
   },
   {
     id: 2,
     title: 'Offer 2',
-    price: 300
+    price: 123
   },
   {
     id: 3,
     title: 'Offer 3',
-    price: 500
+    price: 741
   },
   {
     id: 4,
     title: 'Offer 4',
-    price: 770
+    price: 147
   }]
 },
 {
@@ -95,22 +99,91 @@ const offersByType = [{
   offers: [{
     id: 1,
     title: 'Blowjob',
-    price: 120
+    price: 963
   },
   {
     id: 2,
     title: 'Offer 2',
-    price: 300
+    price: 369
   },
   {
     id: 3,
     title: 'Offer 3',
-    price: 500
+    price: 753
   },
   {
     id: 4,
     title: 'Offer 4',
-    price: 770
+    price: 357
+  }]
+},
+{
+  type: 'check-in',
+  offers: [{
+    id: 1,
+    title: 'Blowjob',
+    price: 87
+  },
+  {
+    id: 2,
+    title: 'Offer 2',
+    price: 94
+  },
+  {
+    id: 3,
+    title: 'Offer 3',
+    price: 65
+  },
+  {
+    id: 4,
+    title: 'Offer 4',
+    price: 78
+  }]
+},
+{
+  type: 'sightseeing',
+  offers: [{
+    id: 1,
+    title: 'Blowjob',
+    price: 968
+  },
+  {
+    id: 2,
+    title: 'Offer 2',
+    price: 124
+  },
+  {
+    id: 3,
+    title: 'Offer 3',
+    price: 121
+  },
+  {
+    id: 4,
+    title: 'Offer 4',
+    price: 747
+  }]
+},
+{
+  type: 'restaurant',
+  offers: [{
+    id: 1,
+    title: 'Blowjob',
+    price: 51
+  },
+  {
+    id: 2,
+    title: 'Offer 2',
+    price: 52
+  },
+  {
+    id: 3,
+    title: 'Offer 3',
+    price: 53
+  },
+  {
+    id: 4,
+    title: 'Offer 4',
+    price: 58
   }]
 },];
 

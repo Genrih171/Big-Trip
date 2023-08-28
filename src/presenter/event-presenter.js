@@ -2,6 +2,8 @@ import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 import { remove, render, replace } from '../framework/render';
 import { isEscapeKey } from '../utils/common';
+import { isDateEqual } from '../utils/event';
+import { UpdateType, UserAction } from '../const';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -11,6 +13,7 @@ export default class EventPresenter {
   #eventListContainer = null;
   #event = null;
   #offersEvents = null;
+  #destinations = null;
 
   #eventComponent = null;
   #editEventComponent = null;
@@ -20,29 +23,35 @@ export default class EventPresenter {
 
   #mode = Mode.DEFAULT;
 
-  constructor({eventListContainer, onDataChange, onModeChange}) {
+  constructor({eventListContainer, onDataChange, onModeChange, offersEvents, destinations}) {
     this.#eventListContainer = eventListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
+    this.#offersEvents = offersEvents;
+    this.#destinations = destinations;
   }
 
-  init(event, offersEvents) {
+  init(event) {
     this.#event = event;
-    this.#offersEvents = offersEvents;
 
     const preEventComponent = this.#eventComponent;
     const preEditEventComponent = this.#editEventComponent;
 
     this.#eventComponent = new EventView({
-      event,
+      event: this.#event,
+      offersEvents: this.#offersEvents,
+      destinations: this.#destinations,
       onClick: this.#handleEditClick,
-      onFavoriteClick: this.#handleFavoriteClick
+      onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#editEventComponent = new EditEventView({
-      event,
-      offersEvents,
-      onClick: this.#handleSubmitForm
+      event: this.#event,
+      offersEvents: this.#offersEvents,
+      destinations: this.#destinations,
+      onChangeForm: this.#handleChangeForm,
+      onSubmitForm: this.#handleSubmitForm,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     if (preEventComponent === null || preEditEventComponent === null) {
@@ -70,6 +79,7 @@ export default class EventPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToCard();
     }
   }
@@ -90,6 +100,7 @@ export default class EventPresenter {
   #escKeyDownHandler = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToCard();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
@@ -97,10 +108,37 @@ export default class EventPresenter {
 
   #handleEditClick = () => this.#replaceCardToForm();
 
-  #handleSubmitForm = () => this.#replaceFormToCard();
+  #handleChangeForm = () => {
+    this.#editEventComponent.reset(this.#event);
+    this.#replaceFormToCard();
+  };
+
+  #handleSubmitForm = (update) => {
+    const isMinorUpdate = !isDateEqual(this.#event.dateFrom, update.dateFrom) || !isDateEqual(this.#event.dateTo, update.dateTo) ||
+    this.#event.basePrice !== update.basePrice;
+
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update,
+    );
+    this.#replaceFormToCard();
+  };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#event, isFavorite: !this.#event.isFavorite}, this.#offersEvents);
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.PATCH,
+      {...this.#event, isFavorite: !this.#event.isFavorite},
+    );
+  };
+
+  #handleDeleteClick = () => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      {...this.#event},
+    );
   };
 
 }
