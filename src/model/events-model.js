@@ -36,7 +36,7 @@ export default class EventsModel extends Observable {
     const index = this.#events.findIndex((ev) => ev.id === update.id);
 
     if (index === -1) {
-      throw Error('Can\'t update unexisting event!');
+      throw Error('Can\'t update unexisting event');
     }
 
     try {
@@ -49,24 +49,29 @@ export default class EventsModel extends Observable {
       ];
       this._notify(updateType, update);
     } catch {
-      throw Error('Can\'t update event!');
+      throw Error('Can\'t update event');
     }
   }
 
-  addEvent(updateType, update) {
-    this.#events = [
-      update,
-      ...this.#events
-    ];
-
-    this._notify(updateType, update);
+  async addEvent(updateType, update) {
+    try {
+      const response = await this.#eventApiService.addEvent(update);
+      const addedEvent = this.#adaptToClient(response);
+      this.#events = [
+        addedEvent,
+        ...this.#events
+      ];
+      this._notify(updateType, update);
+    } catch {
+      throw Error('Can\'t add event');
+    }
   }
 
   deleteEvent(updateType, update) {
     const index = this.#events.findIndex((ev) => ev.id === update.id);
 
     if (index === -1) {
-      throw Error('Can\'t update unexisting task');
+      throw Error('Can\'t delete unexisting event');
     }
 
     this.#events = [

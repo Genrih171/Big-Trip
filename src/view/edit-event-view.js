@@ -148,6 +148,9 @@ export default class EditEventView extends AbstractStatefulView {
   #handleDeleteClick = null;
 
   #inputCityName = null;
+  #inputDateFrom = null;
+  #inputDateTo = null;
+  #inputBasePrice = null;
 
   constructor({event = BLANK_EVENT, offersEvents, destinations, onChangeForm, onSubmitForm, onDeleteClick}) {
     super();
@@ -195,6 +198,10 @@ export default class EditEventView extends AbstractStatefulView {
 
     this.#inputCityName = this.element.querySelector('#event-destination-1');
     this.#inputCityName.addEventListener('input', this.#cityChangeHandler);
+
+    this.#inputDateFrom = this.element.querySelector('#event-start-time-1');
+    this.#inputDateTo = this.element.querySelector('#event-end-time-1');
+    this.#inputBasePrice = this.element.querySelector('#event-price-1');
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
 
@@ -209,6 +216,11 @@ export default class EditEventView extends AbstractStatefulView {
       this.#inputCityName.style.border = 'solid 3px red';
       return;
     }
+
+    if (!this.#inputDateFrom.value || !this.#inputDateTo.value || this.#inputBasePrice.value <= 0) {
+      return;
+    }
+
     this.#handleSubmitForm(EditEventView.parseStateToEvent(this._state));
   };
 
@@ -265,7 +277,7 @@ export default class EditEventView extends AbstractStatefulView {
 
   #setDatepickerFrom() {
     this.#datepickerFrom = flatpickr(
-      this.element.querySelector('#event-start-time-1'), {
+      this.#inputDateFrom, {
         enableTime: true,
         defaultDate: this._state.dateFrom,
         dateFormat: 'd/m/y H:i',
@@ -276,7 +288,7 @@ export default class EditEventView extends AbstractStatefulView {
 
   #setDatepickerTo() {
     this.#datepickerTo = flatpickr(
-      this.element.querySelector('#event-end-time-1'), {
+      this.#inputDateTo, {
         enableTime: true,
         defaultDate: this._state.dateTo,
         dateFormat: 'd/m/y H:i',
