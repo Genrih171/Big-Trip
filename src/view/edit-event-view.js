@@ -30,7 +30,7 @@ function createEditEventTemplate(state, offersEvents, destinations) {
 
   const nameCity = destinationEvent ? destinationEvent.name : '';
 
-  const namesCityList = destinations.map((el) =>`<option value=${el.name}>${el.name}</option>`).join('');
+  const namesCityList = destinations.map((el) =>`<option value="${el.name}">${el.name}</option>`).join('');
 
   const destinationContainer = destinationEvent ?
     `<section class="event__section  event__section--destination">

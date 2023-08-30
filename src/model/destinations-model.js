@@ -15,8 +15,8 @@ export default class DestinationsModel extends Observable {
 
   async init() {
     try {
-      const destinationsD = await this.#eventApiService.destinations;
-      this.#destinations = destinationsD;
+      const destinations = await this.#eventApiService.destinations;
+      this.#destinations = destinations;
     } catch {
       throw Error('Can\'t download destinations!');
     }

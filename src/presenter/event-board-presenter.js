@@ -26,6 +26,7 @@ export default class EventBoardPresenter {
 
   #eventPresenters = new Map();
   #newEventPresenter = null;
+  #onNewEventDestroy = null;
 
   #isLoading = true;
 
@@ -35,17 +36,10 @@ export default class EventBoardPresenter {
     this.#filterModel = filterModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
+    this.#onNewEventDestroy = onNewEventDestory;
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
-
-    this.#newEventPresenter = new NewEventPresenter({
-      eventListContainer: this.#eventListComponent.element,
-      offersEvents: this.offers,
-      destinations: this.destinations,
-      onDataChange: this.#handleViewAction,
-      onDestroy: onNewEventDestory,
-    });
   }
 
   init() {
@@ -75,6 +69,13 @@ export default class EventBoardPresenter {
 
   createNewEvent() {
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterTypes.EVERYTHING);
+    this.#newEventPresenter = new NewEventPresenter({
+      eventListContainer: this.#eventListComponent.element,
+      offersEvents: this.offers,
+      destinations: this.destinations,
+      onDataChange: this.#handleViewAction,
+      onDestroy: this.#onNewEventDestroy,
+    });
     this.#newEventPresenter.init();
   }
 

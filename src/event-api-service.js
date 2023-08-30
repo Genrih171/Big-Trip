@@ -27,9 +27,9 @@ export default class EventApiService extends ApiService {
       .then(ApiService.parseResponse);
   }
 
-  async updateTask(event) {
+  async updateEvent(event) {
     const response = await this._load({
-      url: `tasks/${event.id}`,
+      url: `${Url.POINTS}/${event.id}`,
       method: Method.PUT,
       body: JSON.stringify(this.#adaptToServer(event)),
       headers: new Headers({'Content-Type': 'application/json'}),
@@ -43,8 +43,8 @@ export default class EventApiService extends ApiService {
   #adaptToServer(event) {
     const adaptedEvent = {...event,
       'base_price': event.basePrice,
-      'date_from': event.dateFrom.toISOString(),
-      'date_to': event.dateTo.toISOString(),
+      'date_from': event.dateFrom,
+      'date_to': event.dateTo,
       'is_favorite': event.isFavorite,
     };
 

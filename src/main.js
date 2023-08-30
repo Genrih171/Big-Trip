@@ -54,7 +54,6 @@ const eventBoardPresenter = new EventBoardPresenter({
 const newEventButton = new NewEventButtonView({
   onClick: handleNewEventButtonClick
 });
-render(newEventButton, pageHeaderContainer, RenderPosition.BEFOREEND);
 
 function handleNewEventButtonClick () {
   eventBoardPresenter.createNewEvent();
@@ -68,4 +67,7 @@ function handleNewEventFormClose () {
 tripInfoPresenter.init();
 filtersPresenter.init();
 eventBoardPresenter.init();
-eventsModel.init();
+eventsModel.init()
+  .finally(
+    () => render(newEventButton, pageHeaderContainer, RenderPosition.BEFOREEND)
+  );
