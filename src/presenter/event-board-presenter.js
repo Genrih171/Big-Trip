@@ -1,6 +1,7 @@
 import EventListView from '../view/event-list-view';
 import EventSortView from '../view/event-sort-view';
 import EventListEmptyView from '../view/event-list-empty-view';
+import LoadingView from '../view/loading-view';
 import EventPresenter from './event-presenter';
 import { FilterTypes, SortType, UpdateType, UserAction } from '../const';
 import { remove, render } from '../framework/render';
@@ -14,13 +15,19 @@ export default class EventBoardPresenter {
   #offersModel = null;
   #destinationsModel = null;
 
-  #eventBoardContainer = null;
-  #sortComponent = null;
   #currentSortType = SortType.DAY;
+
+  #eventBoardContainer = null;
+
+  #sortComponent = null;
   #eventListComponent = new EventListView();
   #emptyListComponent = null;
+  #loadingComponent = new LoadingView();
+
   #eventPresenters = new Map();
   #newEventPresenter = null;
+
+  #isLoading = true;
 
   constructor({eventBoardContainer, eventsModel, filterModel, offersModel, destinationsModel, onNewEventDestory}) {
     this.#eventBoardContainer = eventBoardContainer;
@@ -113,8 +120,10 @@ export default class EventBoardPresenter {
         this.#renderEventBoard();
         break;
       case UpdateType.INIT:
-        this.#clearEventBoard({resetSortType: true});
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderEventBoard();
+        break;
     }
   };
 
@@ -152,6 +161,11 @@ export default class EventBoardPresenter {
 
 
   #renderEventBoard() {
+    if (this.#isLoading) {
+      render(this.#loadingComponent, this.#eventBoardContainer);
+      return;
+    }
+
     if (!this.events.length) {
       this.#renderEmtyList();
       return;
