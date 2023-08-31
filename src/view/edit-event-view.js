@@ -261,27 +261,27 @@ export default class EditEventView extends AbstractStatefulView {
     this.updateElement({destination: currentDestination.id});
   };
 
-  #dateChangeHandler(type) {
-    const dateType = type;
-    return ([userDate]) => {
-      this.updateElement({
-        [dateType]: userDate
-      });
-    };
-  }
-
   #basePriceChangeHandler = (evt) => {
     evt.target.value = evt.target.value.replace(PATTERN, '');
     this._setState({basePrice: +evt.target.value});
   };
 
+  #dateChangeHandler(type, input) {
+    const dateType = type;
+    return ([userDate]) => {
+      input.value = flatpickr.formatDate(userDate, 'd/m/y H:i');
+      this._setState({[dateType]: userDate});
+    };
+  }
+
   #setDatepickerFrom() {
     this.#datepickerFrom = flatpickr(
       this.#inputDateFrom, {
         enableTime: true,
+        'time_24hr': true,
         defaultDate: this._state.dateFrom,
         dateFormat: 'd/m/y H:i',
-        onChange: this.#dateChangeHandler('dateFrom')
+        onChange: this.#dateChangeHandler('dateFrom', this.#inputDateFrom)
       }
     );
   }
@@ -290,10 +290,11 @@ export default class EditEventView extends AbstractStatefulView {
     this.#datepickerTo = flatpickr(
       this.#inputDateTo, {
         enableTime: true,
+        'time_24hr': true,
         defaultDate: this._state.dateTo,
         dateFormat: 'd/m/y H:i',
         minDate: this._state.dateFrom,
-        onChange: this.#dateChangeHandler('dateTo')
+        onChange: this.#dateChangeHandler('dateTo', this.#inputDateTo)
       }
     );
   }
