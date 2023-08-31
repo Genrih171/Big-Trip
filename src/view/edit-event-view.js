@@ -19,7 +19,17 @@ const BLANK_EVENT = {
 };
 
 function createEditEventTemplate(state, offersEvents, destinations) {
-  const {basePrice, dateFrom, dateTo, destination, offers, type} = state;
+  const {
+    basePrice,
+    dateFrom,
+    dateTo,
+    destination,
+    offers,
+    type,
+    isDisabled,
+    isSaving,
+    isDeleting,
+  } = state;
 
   const eventDateFrom = humanizeEventTime(dateFrom, DATE_FORMAT.FULL);
   const eventDateTo = humanizeEventTime(dateTo, DATE_FORMAT.FULL);
@@ -54,7 +64,7 @@ function createEditEventTemplate(state, offersEvents, destinations) {
       ${offersCurrentType.map((el) =>
     `<div class="event__offer-selector" data-offer-id="${el.id}">
         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${el.id}" type="checkbox" name="event-offer-luggage"
-        ${offers.includes(el.id) ? 'checked' : ''}>
+        ${offers.includes(el.id) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
         <label class="event__offer-label" for="event-offer-${type}-${el.id}">
           <span class="event__offer-title">${el.title}</span>
           &plus;&euro;&nbsp;
@@ -83,7 +93,7 @@ function createEditEventTemplate(state, offersEvents, destinations) {
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
           <div class="event__type-list">
             <fieldset class="event__type-group">
@@ -98,7 +108,8 @@ function createEditEventTemplate(state, offersEvents, destinations) {
           <label class="event__label  event__type-output" for="event-destination-1">
             ${eventType}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameCity}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameCity}" list="destination-list-1"
+          ${isDisabled ? 'disabled' : ''}>
           <datalist id="destination-list-1">
             ${namesCityList}
           </datalist>
@@ -106,10 +117,10 @@ function createEditEventTemplate(state, offersEvents, destinations) {
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${eventDateFrom}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${eventDateFrom}" ${isDisabled ? 'disabled' : ''}>
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${eventDateTo}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${eventDateTo}" ${isDisabled ? 'disabled' : ''}>
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -117,12 +128,12 @@ function createEditEventTemplate(state, offersEvents, destinations) {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''}>
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
-        <button class="event__rollup-btn" type="button">
+        <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+        <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
+        <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
           <span class="visually-hidden">Open event</span>
         </button>
       </header>
@@ -266,11 +277,12 @@ export default class EditEventView extends AbstractStatefulView {
     this._setState({basePrice: +evt.target.value});
   };
 
-  #dateChangeHandler(type, input) {
+  #dateChangeHandler(type) {
     const dateType = type;
     return ([userDate]) => {
-      input.value = flatpickr.formatDate(userDate, 'd/m/y H:i');
-      this._setState({[dateType]: userDate});
+      this.updateElement({
+        [dateType]: userDate
+      });
     };
   }
 
@@ -281,7 +293,7 @@ export default class EditEventView extends AbstractStatefulView {
         'time_24hr': true,
         defaultDate: this._state.dateFrom,
         dateFormat: 'd/m/y H:i',
-        onChange: this.#dateChangeHandler('dateFrom', this.#inputDateFrom)
+        onChange: this.#dateChangeHandler('dateFrom')
       }
     );
   }
@@ -294,20 +306,26 @@ export default class EditEventView extends AbstractStatefulView {
         defaultDate: this._state.dateTo,
         dateFormat: 'd/m/y H:i',
         minDate: this._state.dateFrom,
-        onChange: this.#dateChangeHandler('dateTo', this.#inputDateTo)
+        onChange: this.#dateChangeHandler('dateTo')
       }
     );
   }
 
   static parseEventToState(event) {
-    return {...event};
+    return {...event,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToEvent(state) {
-    if (!state.basePrice) {
-      state.basePrice = 0;
-    }
     const event = {...state};
+
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
+
     return event;
   }
 }
