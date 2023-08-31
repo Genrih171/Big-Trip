@@ -55,6 +55,13 @@ export default class EventApiService extends ApiService {
     return parsedResponse;
   }
 
+  async deleteEvent (event) {
+    await this._load({
+      url: `${Url.POINTS}/${event.id}`,
+      method: Method.DELETE,
+    });
+  }
+
   #adaptToServer(event) {
     const adaptedEvent = {...event,
       'base_price': event.basePrice,

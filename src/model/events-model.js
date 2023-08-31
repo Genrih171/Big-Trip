@@ -21,8 +21,6 @@ export default class EventsModel extends Observable {
 
   async init() {
     try {
-      await this.#destinationsModel.init();
-      await this.#offersModel.init();
       const events = await this.#eventApiService.events;
       this.#events = events.map(this.#adaptToClient);
     } catch {
@@ -67,19 +65,23 @@ export default class EventsModel extends Observable {
     }
   }
 
-  deleteEvent(updateType, update) {
-    const index = this.#events.findIndex((ev) => ev.id === update.id);
+  async deleteEvent(updateType, event) {
+    const index = this.#events.findIndex((ev) => ev.id === event.id);
 
     if (index === -1) {
       throw Error('Can\'t delete unexisting event');
     }
 
-    this.#events = [
-      ...this.#events.slice(0, index),
-      ...this.#events.slice(index + 1)
-    ];
-
-    this._notify(updateType);
+    try {
+      await this.#eventApiService.deleteEvent(event);
+      this.#events = [
+        ...this.#events.slice(0, index),
+        ...this.#events.slice(index + 1)
+      ];
+      this._notify(updateType);
+    } catch {
+      throw Error('Can\'t delete event');
+    }
   }
 
   #adaptToClient(event) {

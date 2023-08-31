@@ -67,7 +67,12 @@ function handleNewEventFormClose () {
 tripInfoPresenter.init();
 filtersPresenter.init();
 eventBoardPresenter.init();
-eventsModel.init()
-  .finally(
-    () => render(newEventButton, pageHeaderContainer, RenderPosition.BEFOREEND)
-  );
+
+(async () => {
+  await offersModel.init();
+  await destinationsModel.init();
+  eventsModel.init()
+    .finally(
+      () => render(newEventButton, pageHeaderContainer, RenderPosition.BEFOREEND)
+    );
+})();
