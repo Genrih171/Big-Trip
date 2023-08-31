@@ -8,6 +8,12 @@ import { remove, render } from '../framework/render';
 import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
 import { filter } from '../utils/filter';
 import NewEventPresenter from './new-event-presenter';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class EventBoardPresenter {
   #eventsModel = null;
@@ -29,6 +35,10 @@ export default class EventBoardPresenter {
   #onNewEventDestroy = null;
 
   #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT,
+  });
 
   constructor({eventBoardContainer, eventsModel, filterModel, offersModel, destinationsModel, onNewEventDestory}) {
     this.#eventBoardContainer = eventBoardContainer;
@@ -94,6 +104,8 @@ export default class EventBoardPresenter {
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
         this.#eventPresenters.get(update.id).setSaving();
@@ -120,6 +132,8 @@ export default class EventBoardPresenter {
         }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
