@@ -39,6 +39,7 @@ const tripInfoPresenter = new TripInfoPresenter({
 
 const filtersPresenter = new FiltersPresenter({
   filtersContainer: eventFiltersList,
+  eventsModel,
   filterModel,
 });
 

@@ -4,7 +4,7 @@ import EventListEmptyView from '../view/event-list-empty-view';
 import LoadingView from '../view/loading-view';
 import EventPresenter from './event-presenter';
 import { FilterTypes, SortType, UpdateType, UserAction } from '../const';
-import { remove, render } from '../framework/render';
+import { RenderPosition, remove, render } from '../framework/render';
 import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
 import { filter } from '../utils/filter';
 import NewEventPresenter from './new-event-presenter';
@@ -168,7 +168,7 @@ export default class EventBoardPresenter {
       currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
-    render(this.#sortComponent, this.#eventBoardContainer);
+    render(this.#sortComponent, this.#eventBoardContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderEvent(event) {
@@ -184,8 +184,6 @@ export default class EventBoardPresenter {
   }
 
   #renderEventList() {
-    render(this.#eventListComponent, this.#eventBoardContainer);
-
     this.events.forEach((ev) => this.#renderEvent(ev, this.offers, this.destinations));
   }
 
@@ -195,6 +193,8 @@ export default class EventBoardPresenter {
       render(this.#loadingComponent, this.#eventBoardContainer);
       return;
     }
+
+    render(this.#eventListComponent, this.#eventBoardContainer);
 
     if (!this.events.length) {
       this.#renderEmtyList();
