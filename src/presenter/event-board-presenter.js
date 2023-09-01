@@ -90,6 +90,9 @@ export default class EventBoardPresenter {
   }
 
   #handleModeChange = () => {
+    if (this.#newEventPresenter) {
+      this.#newEventPresenter.destroy();
+    }
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 

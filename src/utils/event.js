@@ -17,6 +17,11 @@ const getDiffTime = (date1, date2, diffFormat = DIFF_FORMAT.MINUTE) => dayjs(dat
 
 const getEventDiffTime = (date1, date2, diffFormat) => {
   let diffTime = getDiffTime(date1, date2, diffFormat);
+
+  if (diffTime > 1440) {
+    diffTime = `${Math.floor(diffTime / 1440)}D ${Math.floor(diffTime % 1440 / 60)}H ${diffTime % 1440 % 60}`;
+  }
+
   if (diffTime > 60) {
     diffTime = `${Math.floor(diffTime / 60)}H ${diffTime % 60}`;
   }

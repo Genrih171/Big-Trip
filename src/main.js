@@ -12,7 +12,7 @@ import EventApiService from './event-api-service';
 import NewEventButtonView from './view/new-event-button-view';
 import { RenderPosition, render } from './framework/render';
 
-const AUTHORIZATION = 'Basic hS2sfSGenih17144wcl1sa2j';
+const AUTHORIZATION = 'Basic hS2sfSGenih17144wcl1sa2j1';
 const END_POINT = 'https://19.ecmascript.pages.academy/big-trip/';
 
 const eventApiService = new EventApiService(END_POINT, AUTHORIZATION);

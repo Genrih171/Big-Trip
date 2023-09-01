@@ -223,12 +223,9 @@ export default class EditEventView extends AbstractStatefulView {
 
   #submitFormHandler = (evt) => {
     evt.preventDefault();
-    if (!this.#destinations.find((el) => this.#inputCityName.value === el.name)) {
-      this.#inputCityName.style.border = 'solid 3px red';
-      return;
-    }
-
-    if (!this.#inputDateFrom.value || !this.#inputDateTo.value || this.#inputBasePrice.value <= 0) {
+    if (!this.#destinations.find((el) => this.#inputCityName.value === el.name) || !this.#inputDateFrom.value ||
+    !this.#inputDateTo.value || this.#inputBasePrice.value <= 0) {
+      this.shake();
       return;
     }
 
@@ -268,7 +265,6 @@ export default class EditEventView extends AbstractStatefulView {
       return;
     }
 
-    evt.target.style.border = 'none';
     this.updateElement({destination: currentDestination.id});
   };
 

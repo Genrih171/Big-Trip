@@ -28,6 +28,7 @@ export default class FiltersPresenter {
     });
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
