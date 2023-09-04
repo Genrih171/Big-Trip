@@ -4,23 +4,6 @@ import { FilterTypes } from '../const';
 function createEventsFiltersTemplate(state) {
   const {currentFilter, filtersAvailable} = state;
 
-  // const getFilterButtons = () => {
-  //   const filterButtons = [];
-
-  //   for (const type in FilterTypes) {
-  //     filterButtons.push(
-  //       `<div class="trip-filters__filter">
-  //         <input id="filter-${FilterTypes[type]}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value=${FilterTypes[type]}
-  //         ${FilterTypes[type] === currentFilter ? 'checked' : ''}>
-  //         <label class="trip-filters__filter-label" for="filter-${FilterTypes[type]}" data-filter="${FilterTypes[type]}">
-  //         ${Array.from(FilterTypes[type])[0].toUpperCase() + FilterTypes[type].slice(1)}</label>
-  //       </div>`
-  //     );
-  //   }
-
-  //   return filterButtons.join('');
-  // };
-
   const filterButtons = Object.entries(FilterTypes).map(([key, type]) =>
     `<div class="trip-filters__filter">
     <input id="filter-${type}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value=${type}

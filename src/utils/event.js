@@ -11,6 +11,11 @@ const DIFF_FORMAT = {
   MINUTE: 'minute',
 };
 
+const NUMBER_MINUTES = {
+  MINUTE_DAY: 1440,
+  MINUTE_HOUR: 60,
+};
+
 const humanizeEventTime = (date, dateFormat = DATE_FORMAT.SHORT) => date ? dayjs(date).format(dateFormat) : '';
 
 const getDiffTime = (date1, date2, diffFormat = DIFF_FORMAT.MINUTE) => dayjs(date1).diff(date2, diffFormat);
@@ -18,12 +23,12 @@ const getDiffTime = (date1, date2, diffFormat = DIFF_FORMAT.MINUTE) => dayjs(dat
 const getEventDiffTime = (date1, date2, diffFormat) => {
   let diffTime = getDiffTime(date1, date2, diffFormat);
 
-  if (diffTime > 1440) {
-    diffTime = `${Math.floor(diffTime / 1440)}D ${Math.floor(diffTime % 1440 / 60)}H ${diffTime % 1440 % 60}`;
+  if (diffTime > NUMBER_MINUTES.MINUTE_DAY) {
+    diffTime = `${Math.floor(diffTime / NUMBER_MINUTES.MINUTE_DAY)}D ${Math.floor(diffTime % NUMBER_MINUTES.MINUTE_DAY / NUMBER_MINUTES.MINUTE_HOUR)}H ${diffTime % NUMBER_MINUTES.MINUTE_DAY % NUMBER_MINUTES.MINUTE_HOUR}`;
   }
 
-  if (diffTime > 60) {
-    diffTime = `${Math.floor(diffTime / 60)}H ${diffTime % 60}`;
+  if (diffTime > NUMBER_MINUTES.MINUTE_HOUR) {
+    diffTime = `${Math.floor(diffTime / NUMBER_MINUTES.MINUTE_HOUR)}H ${diffTime % NUMBER_MINUTES.MINUTE_HOUR}`;
   }
   return `${diffTime}M`;
 };
