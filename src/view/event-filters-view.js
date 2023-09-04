@@ -1,12 +1,14 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { FilterTypes } from '../const';
 
-function createEventsFiltersTemplate(currentFilter) {
-  const filterButtons = Object.values(FilterTypes).map((type) =>
+function createEventsFiltersTemplate(state) {
+  const {currentFilter, filtersAvailable} = state;
+
+  const filterButtons = Object.entries(FilterTypes).map(([key, type]) =>
     `<div class="trip-filters__filter">
     <input id="filter-${type}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value=${type}
-    ${type === currentFilter ? 'checked' : ''}>
-    <label class="trip-filters__filter-label" for="filter-${type}" data-filter="${type}">${Array.from(type)[0].toUpperCase() + type.slice(1)}</label>
+    ${type === currentFilter ? 'checked' : ''} ${!filtersAvailable[key] ? 'disabled' : ''}>
+    <label class="trip-filters__filter-label" for="filter-${type}">${Array.from(type)[0].toUpperCase() + type.slice(1)}</label>
   </div>`
   ).join('');
 
@@ -18,26 +20,31 @@ function createEventsFiltersTemplate(currentFilter) {
   );
 }
 
-export default class EventFiltersView extends AbstractView {
-  #currentFilter = null;
+export default class EventFiltersView extends AbstractStatefulView {
   #handleChangeFilter = null;
 
-  constructor({currentFilter, onChangeFilter}) {
+  constructor({currentFilter, onChangeFilter, filtersAvailable}) {
     super();
-    this.#currentFilter = currentFilter;
+    this._setState({
+      currentFilter: currentFilter,
+      filtersAvailable: filtersAvailable});
     this.#handleChangeFilter = onChangeFilter;
 
-    this.element.closest('.trip-filters').addEventListener('click', this.changeFilterHandler);
+    this._restoreHandlers();
   }
 
   get template() {
-    return createEventsFiltersTemplate(this.#currentFilter);
+    return createEventsFiltersTemplate(this._state);
+  }
+
+  _restoreHandlers() {
+    this.element.closest('.trip-filters').addEventListener('click', this.changeFilterHandler);
   }
 
   changeFilterHandler = (evt) => {
-    if (!evt.target.closest('.trip-filters__filter-label')) {
+    if (!evt.target.closest('input')) {
       return;
     }
-    this.#handleChangeFilter(evt.target.dataset.filter);
+    this.#handleChangeFilter(evt.target.value);
   };
 }

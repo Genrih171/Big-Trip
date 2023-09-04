@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import { RenderPosition, remove, render } from '../framework/render';
 import EditEventView from '../view/edit-event-view';
 import { isEscapeKey } from '../utils/common';
@@ -26,12 +25,32 @@ export default class NewEventPresenter {
     this.#editEventComponent = new EditEventView({
       offersEvents: this.#offersEvents,
       destinations: this.#destinations,
+      onChangeForm: this.#handleDeleteClick,
       onSubmitForm: this.#handleSubmitForm,
       onDeleteClick: this.#handleDeleteClick,
     });
 
     render(this.#editEventComponent, this.#eventListContainer, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+  }
+
+  setSaving() {
+    this.#editEventComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#editEventComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editEventComponent.shake(resetFormState);
   }
 
   destroy() {
@@ -51,9 +70,8 @@ export default class NewEventPresenter {
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-      {...update, id: nanoid()},
+      update,
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {

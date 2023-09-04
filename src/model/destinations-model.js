@@ -1,10 +1,24 @@
 import Observable from '../framework/observable';
-import { destinations } from '../mock/destinations';
 
 export default class DestinationsModel extends Observable {
-  #destinations = destinations;
+  #eventApiService = null;
+  #destinations = null;
+
+  constructor({eventApiService}) {
+    super();
+    this.#eventApiService = eventApiService;
+  }
 
   get destinations() {
     return this.#destinations;
+  }
+
+  async init() {
+    try {
+      const destinations = await this.#eventApiService.destinations;
+      this.#destinations = destinations;
+    } catch {
+      throw Error('Can\'t download destinations!');
+    }
   }
 }

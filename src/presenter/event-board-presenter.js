@@ -1,12 +1,19 @@
 import EventListView from '../view/event-list-view';
 import EventSortView from '../view/event-sort-view';
 import EventListEmptyView from '../view/event-list-empty-view';
+import LoadingView from '../view/loading-view';
 import EventPresenter from './event-presenter';
 import { FilterTypes, SortType, UpdateType, UserAction } from '../const';
-import { remove, render } from '../framework/render';
+import { RenderPosition, remove, render } from '../framework/render';
 import { sortEventTime, sortEventPrice, sortEventDay } from '../utils/event';
 import { filter } from '../utils/filter';
 import NewEventPresenter from './new-event-presenter';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class EventBoardPresenter {
   #eventsModel = null;
@@ -14,13 +21,24 @@ export default class EventBoardPresenter {
   #offersModel = null;
   #destinationsModel = null;
 
-  #eventBoardContainer = null;
-  #sortComponent = null;
   #currentSortType = SortType.DAY;
+
+  #eventBoardContainer = null;
+
+  #sortComponent = null;
   #eventListComponent = new EventListView();
   #emptyListComponent = null;
+  #loadingComponent = new LoadingView();
+
   #eventPresenters = new Map();
   #newEventPresenter = null;
+  #onNewEventDestroy = null;
+
+  #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT,
+  });
 
   constructor({eventBoardContainer, eventsModel, filterModel, offersModel, destinationsModel, onNewEventDestory}) {
     this.#eventBoardContainer = eventBoardContainer;
@@ -28,17 +46,10 @@ export default class EventBoardPresenter {
     this.#filterModel = filterModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
+    this.#onNewEventDestroy = onNewEventDestory;
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
-
-    this.#newEventPresenter = new NewEventPresenter({
-      eventListContainer: this.#eventListComponent.element,
-      offersEvents: this.offers,
-      destinations: this.destinations,
-      onDataChange: this.#handleViewAction,
-      onDestroy: onNewEventDestory,
-    });
   }
 
   init() {
@@ -68,10 +79,20 @@ export default class EventBoardPresenter {
 
   createNewEvent() {
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterTypes.EVERYTHING);
+    this.#newEventPresenter = new NewEventPresenter({
+      eventListContainer: this.#eventListComponent.element,
+      offersEvents: this.offers,
+      destinations: this.destinations,
+      onDataChange: this.#handleViewAction,
+      onDestroy: this.#onNewEventDestroy,
+    });
     this.#newEventPresenter.init();
   }
 
   #handleModeChange = () => {
+    if (this.#newEventPresenter) {
+      this.#newEventPresenter.destroy();
+    }
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -85,18 +106,37 @@ export default class EventBoardPresenter {
     this.#renderEventBoard();
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this.#eventsModel.updateEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setSaving();
+        try {
+          await this.#eventsModel.updateEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_EVENT:
-        this.#eventsModel.addEvent(updateType, update);
+        this.#newEventPresenter.setSaving();
+        try {
+          await this.#eventsModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_EVENT:
-        this.#eventsModel.deleteEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setDeleting();
+        try {
+          await this.#eventsModel.deleteEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -110,6 +150,11 @@ export default class EventBoardPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearEventBoard({resetSortType: true});
+        this.#renderEventBoard();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderEventBoard();
         break;
     }
@@ -126,7 +171,7 @@ export default class EventBoardPresenter {
       currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
-    render(this.#sortComponent, this.#eventBoardContainer);
+    render(this.#sortComponent, this.#eventBoardContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderEvent(event) {
@@ -142,13 +187,18 @@ export default class EventBoardPresenter {
   }
 
   #renderEventList() {
-    render(this.#eventListComponent, this.#eventBoardContainer);
-
     this.events.forEach((ev) => this.#renderEvent(ev, this.offers, this.destinations));
   }
 
 
   #renderEventBoard() {
+    if (this.#isLoading) {
+      render(this.#loadingComponent, this.#eventBoardContainer);
+      return;
+    }
+
+    render(this.#eventListComponent, this.#eventBoardContainer);
+
     if (!this.events.length) {
       this.#renderEmtyList();
       return;
@@ -159,6 +209,10 @@ export default class EventBoardPresenter {
   }
 
   #clearEventBoard({resetSortType = false} = {}) {
+    if (this.#newEventPresenter) {
+      this.#newEventPresenter.destroy();
+    }
+
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
 
